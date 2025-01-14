@@ -74,77 +74,39 @@ document.getElementById('botFile')?.addEventListener('change', function(e) {
     }
 });
 
-function populateReplays(botName) { 
-    const mockReplays = [
-        {
-            replayId: 1,
-            botName: 'AlphaPoker',
-            opponent: 'Opponent1',
-            date: '2025-01-01',
-            result: 'Win',
-            earnings: '$500',
-        },
-        {
-            replayId: 2,
-            botName: 'AlphaPoker',
-            opponent: 'Opponent2',
-            date: '2025-01-02',
-            result: 'Loss',
-            earnings: '$-300',
-        },
-        {
-            replayId: 3,
-            botName: 'BetaBrawler',
-            opponent: 'Opponent3',
-            date: '2025-01-03',
-            result: 'Win',
-            earnings: '$800',
-        },
-        {
-            replayId: 4,
-            botName: 'GammaCrusher',
-            opponent: 'Opponent4',
-            date: '2025-01-04',
-            result: 'Draw',
-            earnings: '$0',
-        }
-    ];
-
+function populateReplays(botName) {
     const replaysBody = document.getElementById('replaysBody');
     if (!replaysBody) return;
 
-    let filteredReplays;
+    // Fetching the bot data from the server dynamically
+    fetch(`/bots/replays/?bot_name=${botName}`)
+        .then(response => response.json())
+        .then(replays => {
+            // Clear previous content
+            replaysBody.innerHTML = '';
 
-    // Show all replays if 'All Bots' is selected
-    if (botName === 'all') {
-        filteredReplays = mockReplays;
-    } else {
-        filteredReplays = mockReplays.filter(replay => replay.botName === botName);
-    }
+            replays.forEach(replay => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${replay.replay_id}</td>
+                    <td>${replay.bot_name}</td>
+                    <td>${replay.opponent}</td>
+                    <td>${replay.date}</td>
+                    <td>${replay.result}</td>
+                    <td>${replay.earnings}</td>
+                    <td><button class="replay-btn" data-replayId="${replay.replay_id}">Replay</button></td>
+                `;
+                replaysBody.appendChild(row);
+            });
 
-    // Clear the table and add filtered rows
-    replaysBody.innerHTML = '';
-    filteredReplays.forEach(replay => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${replay.replayId}</td>
-            <td>${replay.botName}</td>
-            <td>${replay.opponent}</td>
-            <td>${replay.date}</td>
-            <td>${replay.result}</td>
-            <td>${replay.earnings}</td>
-            <td><button class="replay-btn" data-replayId="${replay.replayId}">Replay</button></td>
-        `;
-        replaysBody.appendChild(row);
-    });
-
-    // Add event listener to the replay buttons
-    document.querySelectorAll('.replay-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const replayId = this.getAttribute('data-replayId');
-            window.location.href = `game.html?replayId=${replayId}`;
+            // Add event listener to replay buttons
+            document.querySelectorAll('.replay-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const replayId = this.getAttribute('data-replayId');
+                    window.location.href = `/game/${replayId}/`; // Adjust the URL accordingly
+                });
+            });
         });
-    });
 }
 
 // Event listener to change the bot filter

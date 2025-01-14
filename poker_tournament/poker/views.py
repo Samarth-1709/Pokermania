@@ -88,31 +88,31 @@ def login(request):
 @permission_classes([IsAuthenticated])
 def my_bots(request):
     bots = Bot.objects.filter(user=request.user)
-    bot_matches = {}
-    for bot in bots:
-        matches_as_bot1 = Match.objects.filter(bot1=bot)
-        matches_as_bot2 = Match.objects.filter(bot2=bot)
-        matches = []
-        for match in matches_as_bot1:
-            matches.append({
-                'opponent': match.bot2.name,
-                'result': match.winner,
-                'date': match.played_at,
-                'chips_exchanged': match.chips_exchanged,
-                'replay_data': match.replay_data
-            })
-        
-        for match in matches_as_bot2:
-            matches.append({
-                'opponent': match.bot1.name,
-                'result': match.winner,
-                'date': match.played_at,
-                'chips_exchanged': match.chips_exchanged,
-                'replay_data': match.replay_data
-            })
+    return render(request, 'bots.html', {'bots': bots})
 
-        bot_matches[bot.id] = matches
-    return render(request, 'bots.html', {'bots': bots, 'bot_matches': bot_matches})
+def bot_replays(request):
+    bot_name = request.GET.get('bot_name', 'all')
+
+    # Get bot matches based on the selected bot filter
+    if bot_name == 'all':
+        matches = Match.objects.all()
+    else:
+        bot = Bot.objects.get(name=bot_name)
+        matches = Match.objects.filter(bot1=bot) | Match.objects.filter(bot2=bot)
+
+    replay_data = []
+    for match in matches:
+        opponent = match.bot2 if match.bot1.name == bot_name else match.bot1
+        replay_data.append({
+            'replay_id': match.game_id,
+            'bot_name': bot_name,
+            'opponent': opponent.name,
+            'date': match.played_at.strftime('%Y-%m-%d'),
+            'result': match.winner,
+            'earnings': f"${match.chips_exchanged}",
+        })
+
+    return JsonResponse(replay_data, safe=False)
 
 
 

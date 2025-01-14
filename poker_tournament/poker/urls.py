@@ -15,4 +15,5 @@ urlpatterns = [
     path('my_bots/', views.my_bots, name='my_bots'),
     path('replay/<int:game_id>/', views.replay, name='replay'),
     path('deploy_bot/', views.deploy_bot, name='deploy_bot'),
+    path('bots/replays/', views.bot_replays, name='bot_replays'),
 ]
