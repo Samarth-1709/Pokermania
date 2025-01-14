@@ -17,7 +17,7 @@ def register(request):
     if User.objects.filter(username=username).exists():
         return JsonResponse({'error': 'Username already taken'}, status=400)
     user = User.objects.create_user(username=username, password=password)
-    return JsonResponse({'message': 'User registered successfully'})
+    return render(request,'home.html')
 
 
 @api_view(['POST'])
@@ -52,12 +52,31 @@ def upload_bot(request):
     return JsonResponse({
         'message': 'Bot uploaded successfully',
     })
+    
 
-@api_view(['GET'])
+
 def leaderboard(request):
+    # Fetch bots and order by wins
     bots = Bot.objects.all().order_by('-wins')
-    data = [{'name': bot.name, 'wins': bot.wins, 'chips_won': bot.chips_won , 'owner': bot.user.username} for bot in bots]
+    
+    # Prepare the leaderboard data
+    data = []
+    for idx, bot in enumerate(bots, start=1):
+        win_rate = (bot.wins / bot.total_games * 100) if bot.total_games else 0  # Avoid division by zero
+        earnings = f"${bot.chips_won:,.0f}"
+        
+        data.append({
+            'rank': idx,
+            'botName': bot.name,
+            'owner': bot.user.username,
+            'wins': bot.wins,
+            'totalGames': bot.total_games,
+            'winRate': f"{win_rate:.1f}%",
+            'earnings': earnings
+        })
+    
     return render(request, 'leaderboard.html', {'data': data})
+
 
 def home(request):
     user_logged_in = request.user.is_authenticated
@@ -69,9 +88,35 @@ def login(request):
 @permission_classes([IsAuthenticated])
 def my_bots(request):
     bots = Bot.objects.filter(user=request.user)
-    return render(request, 'bots.html',{'bots': bots})
+    bot_matches = {}
+    for bot in bots:
+        matches_as_bot1 = Match.objects.filter(bot1=bot)
+        matches_as_bot2 = Match.objects.filter(bot2=bot)
+        matches = []
+        for match in matches_as_bot1:
+            matches.append({
+                'opponent': match.bot2.name,
+                'result': match.winner,
+                'date': match.played_at,
+                'chips_exchanged': match.chips_exchanged,
+                'replay_data': match.replay_data
+            })
+        
+        for match in matches_as_bot2:
+            matches.append({
+                'opponent': match.bot1.name,
+                'result': match.winner,
+                'date': match.played_at,
+                'chips_exchanged': match.chips_exchanged,
+                'replay_data': match.replay_data
+            })
 
-def logout(request):
+        bot_matches[bot.id] = matches
+    return render(request, 'bots.html', {'bots': bots, 'bot_matches': bot_matches})
+
+
+
+def logout_view(request):
     logout(request)
     return redirect('home')
 

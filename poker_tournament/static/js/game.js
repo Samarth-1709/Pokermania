@@ -15,56 +15,52 @@ const cards = [
     { name: "2\u2660", image: "images/cards/2_of_spades.png" },
 ];
 
+let stepIndex = 0; // Track the current step
+let shuffledCards = []; // Store the shuffled cards globally
+
 function dealCards() {
-    // Shuffle the deck (simple randomization)
-    const shuffledCards = cards.sort(() => Math.random() - 0.5);
-
-    // Function to add the image to the card slot
-    function setCardImage(cardSlotId, cardImageSrc) {
-        const cardSlot = document.getElementById(cardSlotId);
-        if (cardSlot) {
-            const cardImage = document.createElement('img');
-            cardImage.src = cardImageSrc;
-            cardImage.alt = cardSlotId;
-            cardImage.style.width = "100%";  // Adjust size of the image to fit the slot
-            cardImage.style.height = "100%"; // Adjust size of the image to fit the slot
-            cardSlot.innerHTML = '';  // Clear any existing content
-            cardSlot.appendChild(cardImage);
-        }
-    }
-
-    // Add cards to the "card pack" initially
-    const cardPackSlot = document.querySelector('.card-pack');
-    if (cardPackSlot) {
-        const cardBackImage = "images/cards/card_back.jpg";  // Image of card back
-        const packCardImage = document.createElement('img');
-        packCardImage.src = cardBackImage;
-        packCardImage.alt = "Card Pack";
-        packCardImage.style.width = "100%";  
-        packCardImage.style.height = "100%"; 
-        cardPackSlot.innerHTML = '';  
-        cardPackSlot.appendChild(packCardImage);
-    }
-
-    // Assign cards to player slots with images
-    setCardImage('player-card-1', shuffledCards[0].image);
-    setCardImage('player-card-2', shuffledCards[1].image);
-    setCardImage('player-card-3', shuffledCards[2].image);
-    setCardImage('player-card-4', shuffledCards[3].image);
-
-    // Assign community cards (move from pack to community cards gradually)
-    setTimeout(() => setCardImage('community-card-1', shuffledCards[4].image), 0);
-    setTimeout(() => setCardImage('community-card-2', shuffledCards[5].image), 0);
-    setTimeout(() => setCardImage('community-card-3', shuffledCards[6].image), 0);
-    setTimeout(() => setCardImage('community-card-4', shuffledCards[7].image), 1000); // Show after 1 second
-    setTimeout(() => setCardImage('community-card-5', shuffledCards[8].image), 2000); // Show after 2 seconds
-
-    // After cards are dealt, dim the page and show results
-    setTimeout(() => {
-        dimPage();
-        showResults(shuffledCards);
-    }, 3000);  // After all cards are displayed
+    shuffledCards = cards.sort(() => Math.random() - 0.5); // Shuffle the cards
+    document.getElementById("nextButton").style.display = "block"; // Show the Next button
+    nextStep(); // Start the first step
 }
+
+function nextStep() {
+    const steps = [
+        () => setCardImage('player-card-1', shuffledCards[0].image),
+        () => setCardImage('player-card-2', shuffledCards[1].image),
+        () => setCardImage('player-card-3', shuffledCards[2].image),
+        () => setCardImage('player-card-4', shuffledCards[3].image),
+        () => setCardImage('community-card-1', shuffledCards[4].image),
+        () => setCardImage('community-card-2', shuffledCards[5].image),
+        () => setCardImage('community-card-3', shuffledCards[6].image),
+        () => setCardImage('community-card-4', shuffledCards[7].image),
+        () => setCardImage('community-card-5', shuffledCards[8].image),
+        () => {
+            dimPage();
+            showResults(shuffledCards);
+            document.getElementById("nextButton").style.display = "none"; // Hide the button after all steps
+        }
+    ];
+
+    if (stepIndex < steps.length) {
+        steps[stepIndex++](); // Execute the current step and move to the next
+    }
+}
+
+// Update the setCardImage function as needed
+function setCardImage(cardSlotId, cardImageSrc) {
+    const cardSlot = document.getElementById(cardSlotId);
+    if (cardSlot) {
+        const cardImage = document.createElement('img');
+        cardImage.src = cardImageSrc;
+        cardImage.alt = cardSlotId;
+        cardImage.style.width = "100%";
+        cardImage.style.height = "100%";
+        cardSlot.innerHTML = '';
+        cardSlot.appendChild(cardImage);
+    }
+}
+
 
 // Function to dim the page
 function dimPage() {

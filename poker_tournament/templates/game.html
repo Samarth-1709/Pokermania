@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-{% load static %}
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Table</title>
-    <link rel="stylesheet" href="{% static 'css/pokercss.css' %}">
+    <link rel="stylesheet" href="../static/css/pokercss.css">
     <style>
         /* Additional styles for the game table page */
         body {
@@ -169,7 +168,7 @@
                     <svg viewBox="0 0 24 24" class="icon">
                         <path d="M8 5v14l11-7z" />
                     </svg>
-                    Home
+                    Play
                 </button>
                 <button onclick="window.location.href='{% url 'leaderboard' %}'">
                     <svg viewBox="0 0 24 24" class="icon">
@@ -214,6 +213,9 @@
                     <div class="card-slot" id="community-card-5"></div>
                 </div>
                 <div class="pot">Pot: $200</div>
+                <div class="next-button">
+                    <button onclick="nextStep()">Next</button>
+                </div>
             </div>
 
             
@@ -232,7 +234,7 @@
         </div>
     </div>
 
-    <script src="{% static 'js/game.js' %}"></script>
+    <script src="../static/js/game.js"></script>
 
 </body>
 

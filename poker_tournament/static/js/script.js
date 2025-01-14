@@ -64,69 +64,6 @@ function handleBotSubmit(event) {
     });
 }
 
-// Leaderboard functionality
-function populateLeaderboard(timeFilter = 'all-time') {
-    const mockData = [
-        {
-            rank: 1,
-            botName: 'AlphaPoker',
-            owner: 'Player1',
-            wins: 150,
-            totalGames: 200,
-            winRate: '75.0%',
-            earnings: '$15,000'
-        },
-        {
-            rank: 2,
-            botName: 'PokerMaster',
-            owner: 'Player2',
-            wins: 140,
-            totalGames: 190,
-            winRate: '73.7%',
-            earnings: '$13,500'
-        },
-        {
-            rank: 3,
-            botName: 'BluffKing',
-            owner: 'Player3',
-            wins: 130,
-            totalGames: 180,
-            winRate: '72.2%',
-            earnings: '$12,000'
-        }
-    ];
-
-    const leaderboardBody = document.getElementById('leaderboardBody');
-    if (!leaderboardBody) return;
-
-    leaderboardBody.innerHTML = '';
-    mockData.forEach(entry => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${entry.rank}</td>
-            <td>${entry.botName}</td>
-            <td>${entry.owner}</td>
-            <td>${entry.wins}</td>
-            <td>${entry.totalGames}</td>
-            <td>${entry.winRate}</td>
-            <td>${entry.earnings}</td>
-        `;
-        leaderboardBody.appendChild(row);
-    });
-}
-
-// Initialize leaderboard when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    populateLeaderboard();
-
-    // Add event listener for time filter changes
-    const timeFilter = document.getElementById('timeFilter');
-    if (timeFilter) {
-        timeFilter.addEventListener('change', (e) => {
-            populateLeaderboard(e.target.value);
-        });
-    }
-});
 
 // File validation
 document.getElementById('botFile')?.addEventListener('change', function(e) {

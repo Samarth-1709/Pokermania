@@ -59,6 +59,12 @@
                         </svg>
                         MyBots
                     </button>
+                    <button onclick="window.location.href='{% url 'logout' %}'">
+                        <svg viewBox="0 0 24 24" class="icon">
+                            <path d="M10 17l5-5-5-5v10zm9-15H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H5V4h14v16z" />
+                        </svg>
+                        Logout
+                    </button>
                 {% else %}
                     <button onclick="window.location.href='{% url 'login' %}'">
                         <svg viewBox="0 0 24 24" class="icon">

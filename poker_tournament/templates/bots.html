@@ -33,7 +33,6 @@
                     <svg class="suit clubs" viewBox="0 0 24 24">
                         <path d="M12 2C10.5 2 9.5 3.5 9.5 5C9.5 6 10 6.5 10.5 6.5C9 7 8 8.5 8 10C8 12 10 13 12 12.5C14 13 16 12 16 10C16 8.5 15 7 13.5 6.5C14 6.5 14.5 6 14.5 5C14.5 3.5 13.5 2 12 2ZM10.5 14.5H13.5C13.5 15.5 13 16.5 12 17.5C11 16.5 10.5 15.5 10.5 14.5Z" />
                     </svg>
-                                      
                 </div>
                 PokerBots Arena
             </button>
@@ -51,7 +50,6 @@
                     Leaderboard
                 </button>
             </div>
-            
         </div>
     </nav>
 
@@ -66,9 +64,9 @@
                 <div class="bot-filters">
                     <select id="botFilter">
                         <option value="all">All Bots</option>
-                        <option value="AlphaPoker">AlphaPoker</option>
-                        <option value="BetaBrawler">BetaBrawler</option>
-                        <option value="GammaCrusher">GammaCrusher</option>
+                        {% for bot in bots %}
+                            <option value="{{ bot.name }}">{{ bot.name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
             
@@ -81,18 +79,30 @@
                             <th>Date</th>
                             <th>Result</th>
                             <th>Earnings</th>
-                            <th>Replay</th> <!-- New column for the button -->
+                            <th>Replay</th>
                         </tr>
                     </thead>
                     <tbody id="replaysBody">
-                        <!-- Replay data will be populated here -->
+                        {% for bot in bots %}
+                            {% for match in bot_matches[bot.id] %}
+                            <tr>
+                                <td>{{ match.replay_data.id }}</td>
+                                <td>{{ bot.name }}</td>
+                                <td>{{ match.opponent }}</td>
+                                <td>{{ match.date }}</td>
+                                <td>{{ match.result }}</td>
+                                <td>{{ match.chips_exchanged }}</td>
+                                <td>
+                                    <button class="replay-btn" data-bot-id="{{ bot.id }}" data-replay-id="{{ match.game_id }}">Replay</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endfor %}
                     </tbody>
-                </table>                
+                </table>
             </div>
         </div>
     </div>
-    
-    
 
     <script src="{% static 'js/script.js' %}"></script>
 </body>
