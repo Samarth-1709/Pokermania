@@ -9,7 +9,7 @@ db.sqlite3
 *.log
 
 # Static and media
-static/
+# static/
 media/
 
-bots/
+# bots/
