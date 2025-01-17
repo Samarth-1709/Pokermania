@@ -19,22 +19,36 @@ def register(request):
         password = request.POST.get('password')
         confirmPassword = request.POST.get('confirmPassword')
 
+        # Check if passwords match
         if password != confirmPassword:
             messages.error(request, "Passwords do not match!")
             return redirect('/login/')
-        user = User.objects.filter(username=username)
 
-        if user.exists():
+        # Check if password meets strength requirements
+        if len(password) < 8:
+            messages.error(request, "Password must be at least 8 characters long.")
+            return redirect('/login/')
+        if not re.search(r'\d', password):
+            messages.error(request, "Password must contain at least one number.")
+            return redirect('/login/')
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            messages.error(request, "Password must contain at least one special character.")
+            return redirect('/login/')
+        if not re.search(r'[A-Z]', password):
+            messages.error(request, "Password must contain at least one uppercase letter.")
+            return redirect('/login/')
+        
+        # Check if the username already exists
+        if User.objects.filter(username=username).exists():
             messages.info(request, "Username already taken!")
             return redirect('/login/')
         
+        # Create the user
         user = User.objects.create_user(
             username=username,
             email=email,
             password=password
         )
-        
-        user.set_password(password)
         user.save()
         
         messages.info(request, "Account created Successfully!")
@@ -106,7 +120,7 @@ def login_view(request):
         password = request.POST.get('password')
         
         if not User.objects.filter(username=username).exists():
-            messages.error(request, 'Username aldready exists')
+            messages.error(request, 'Invalid Username')
             return redirect('/login/')
         user = authenticate(username=username, password=password)
         

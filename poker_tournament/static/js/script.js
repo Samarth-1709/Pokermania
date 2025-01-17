@@ -74,46 +74,64 @@ document.getElementById('botFile')?.addEventListener('change', function(e) {
     }
 });
 
-function populateReplays(botName) {
-    const replaysBody = document.getElementById('replaysBody');
-    if (!replaysBody) return;
 
-    // Fetching the bot data from the server dynamically
-    fetch(`/bots/replays/?bot_name=${botName}`)
-        .then(response => response.json())
-        .then(replays => {
-            // Clear previous content
-            replaysBody.innerHTML = '';
+ // Password strength validation
+document.getElementById('signupPassword').addEventListener('input', function() {
+    let password = this.value;
+    let message = '';
 
-            replays.forEach(replay => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${replay.replay_id}</td>
-                    <td>${replay.bot_name}</td>
-                    <td>${replay.opponent}</td>
-                    <td>${replay.date}</td>
-                    <td>${replay.result}</td>
-                    <td>${replay.earnings}</td>
-                    <td><button class="replay-btn" data-replayId="${replay.replay_id}">Replay</button></td>
-                `;
-                replaysBody.appendChild(row);
-            });
+    // Check password length
+    if (password.length < 8) {
+        message += 'Password must be at least 8 characters long.\n';
+    }
+    // Check if password contains a number
+    if (!/\d/.test(password)) {
+        message += 'Password must contain at least one number.\n';
+    }
+    // Check if password contains a special character
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+        message += 'Password must contain at least one special character.\n';
+    }
+    // Check if password contains an uppercase letter
+    if (!/[A-Z]/.test(password)) {
+        message += 'Password must contain at least one uppercase letter.\n';
+    }
 
-            // Add event listener to replay buttons
-            document.querySelectorAll('.replay-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const replayId = this.getAttribute('data-replayId');
-                    window.location.href = `/game/${replayId}/`; // Adjust the URL accordingly
-                });
-            });
-        });
-}
+    // Display password strength message
+    document.getElementById('passwordMessage').textContent = message;
 
-// Event listener to change the bot filter
-document.getElementById('botFilter').addEventListener('change', function() {
-    const selectedBot = this.value;
-    populateReplays(selectedBot);
+    // Clear message if password is valid
+    if (message === '') {
+        document.getElementById('passwordMessage').textContent = '';
+    }
+
+    // Recheck password match when password is changed
+    checkPasswordMatch();
 });
 
-// Initial population of replays for the default option (All Bots)
-populateReplays('all');
+// Password match validation
+document.getElementById('confirmPassword').addEventListener('input', function() {
+    checkPasswordMatch();
+});
+
+function checkPasswordMatch() {
+    let password = document.getElementById('signupPassword').value;
+    let confirmPassword = document.getElementById('confirmPassword').value;
+    let matchMessage = '';
+
+    // Only perform the check if both fields have content
+    if (password && confirmPassword) {
+        if (password !== confirmPassword) {
+            matchMessage = 'Passwords do not match!';
+            document.getElementById('passwordMatchMessage').style.color = 'red';
+        } else {
+            matchMessage = 'Passwords match!';
+            document.getElementById('passwordMatchMessage').style.color = 'green';
+        }
+    } else {
+        matchMessage = ''; // Clear the message if either field is empty
+    }
+
+    // Display password match message
+    document.getElementById('passwordMatchMessage').textContent = matchMessage;
+}
