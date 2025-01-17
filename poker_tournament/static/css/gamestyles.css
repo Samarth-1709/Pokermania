@@ -3,7 +3,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-image: url('images/table1.jpg'); /* Set your background image */
+    background-image: url('../images/table1.jpg'); /* Set your background image */
     background-size: cover; /* Cover the entire screen */
     background-position: center; /* Center the image */
     color: white;
@@ -85,7 +85,7 @@ body {
     justify-content: center;
     color: white;
     font-weight: bold;
-    background-image: url('images/cards/card_back.jpg'); /* Set the card back image here */
+    background-image: url('../images/cards/card_back.jpg'); /* Set the card back image here */
     background-size: cover;  /* Ensure the image covers the entire slot */
     background-position: center; /* Center the card back image */
 }

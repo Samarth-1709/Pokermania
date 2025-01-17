@@ -27,6 +27,7 @@ class Bot(models.Model):
     file = models.FileField(upload_to='bots/')
     created_at = models.DateTimeField(auto_now_add=True)
     wins=models.IntegerField(default=0)
+    total_games=models.IntegerField(default=0)
     chips_won = models.IntegerField(default=0)
 
 

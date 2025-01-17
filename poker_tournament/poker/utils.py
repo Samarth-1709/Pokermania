@@ -59,22 +59,19 @@ def parse_poker_output_to_json(input_text):
     
 
 def redirect_stdout_to_file(config, output_file):
-    # Redirect stdout to a file
     with open(output_file, "w") as file:
-        original_stdout = sys.stdout  # Save the original stdout
+        original_stdout = sys.stdout
         try:
-            sys.stdout = file  # Redirect stdout to the file
-            result=start_poker(config, verbose=1)  # Run the poker game
+            sys.stdout = file
+            result=start_poker(config, verbose=1)
         finally:
-            sys.stdout = original_stdout  # Restore original stdout
+            sys.stdout = original_stdout
             return result
 
 def read_output_file_and_parse(input_file):
-    # Read the content from the output file
     with open(input_file, "r") as file:
         content = file.read()
 
-    # Parse the content into a JSON dictionary
     poker_json = parse_poker_output_to_json(content)
     return poker_json
 
@@ -103,7 +100,6 @@ def play_match(bot1_path, bot2_path, bot1, bot2):
     bot1_stack = result["players"][0]["stack"]
     bot2_stack = result["players"][1]["stack"]
 
-    # Determine winner and chips exchanged
     chips_exchanged = abs(bot1_stack - bot2_stack)
     if bot1_stack > bot2_stack:
         bot1.chips_won += chips_exchanged
@@ -116,11 +112,38 @@ def play_match(bot1_path, bot2_path, bot1, bot2):
         bot2.wins += 1
         winner = bot2.name
     
+    bot1.total_games += 1
+    bot2.total_games += 1
+
     bot1.save()
     bot2.save()
-    hole_cards = [bot1_instance.hole_cards, bot2_instance.hole_cards]
+    hole_cards = [bot1_instance.hole_cards,bot2_instance.hole_cards]
 
     return winner, chips_exchanged, replay_data, hole_cards
 
-
-
+# {
+#     "street": ["preflop", "flop", "turn", "river"],
+#     "actions": {
+#         "preflop": {
+#             "name": ["player1", "player2"],
+#             "action": ["call", "call"],
+#             "amount": [50, 50]
+#         },
+#         "flop": {
+#             "name": ["player1", "player2"],
+#             "action": ["raise", "call"],
+#             "amount": [100, 100]
+#         },
+#         "turn": {
+#             "name": ["player1", "player2"],
+#             "action": ["raise", "call"],
+#             "amount": [100, 100]
+#         },
+#         "river": {
+#             "name": ["player1", "player2"],
+#             "action": ["call", "call"],
+#             "amount": [0, 0]
+#         }
+#     },
+#     "communitycards": ["SA","HT","D4","D9","CK"]
+# }

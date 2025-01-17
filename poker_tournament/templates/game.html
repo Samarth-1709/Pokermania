@@ -5,9 +5,9 @@
 {% block title %}
 Game Table
 {% endblock %}
-<link rel="stylesheet" href="{% static 'css/game.css' %}">
-{% block extra_css %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/gamestyles.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -43,7 +43,7 @@ Game Table
         </div>
 
         <div class="opponent">
-            <h2>Opponent 2</h2>
+            <h2>{{ match.bot1.name }}</h2>
             <div class="balance">$450</div>
             <div class="player-cards">
                 <div class="card-slot" id="player-card-3"></div>
@@ -54,5 +54,219 @@ Game Table
         <div class="bet bet-right">$70</div>
     </div>
 </div>
+<script>
+    const cards = [
+        { name: "SA", image: "{% static 'images/cards/ace_of_spades.png' %}" },
+        { name: "SK", image: "{% static 'images/cards/king_of_spades.png' %}" },
+        { name: "SQ", image: "{% static 'images/cards/queen_of_spades.png' %}" },
+        { name: "SJ", image: "{% static 'images/cards/jack_of_spades.png' %}" },
+        { name: "ST", image: "{% static 'images/cards/10_of_spades.png' %}" },
+        { name: "S9", image: "{% static 'images/cards/9_of_spades.png' %}" },
+        { name: "S8", image: "{% static 'images/cards/8_of_spades.png' %}" },
+        { name: "S7", image: "{% static 'images/cards/7_of_spades.png' %}" },
+        { name: "S6", image: "{% static 'images/cards/6_of_spades.png' %}" },
+        { name: "S5", image: "{% static 'images/cards/5_of_spades.png' %}" },
+        { name: "S4", image: "{% static 'images/cards/4_of_spades.png' %}" },
+        { name: "S3", image: "{% static 'images/cards/3_of_spades.png' %}" },
+        { name: "S2", image: "{% static 'images/cards/2_of_spades.png' %}" },
+        { name: "HA", image: "{% static 'images/cards/ace_of_hearts.png' %}" },
+        { name: "HK", image: "{% static 'images/cards/king_of_hearts.png' %}" },
+        { name: "HQ", image: "{% static 'images/cards/queen_of_hearts.png' %}" },
+        { name: "HJ", image: "{% static 'images/cards/jack_of_hearts.png' %}" },
+        { name: "HT", image: "{% static 'images/cards/10_of_hearts.png' %}" },
+        { name: "H9", image: "{% static 'images/cards/9_of_hearts.png' %}" },
+        { name: "H8", image: "{% static 'images/cards/8_of_hearts.png' %}" },
+        { name: "H7", image: "{% static 'images/cards/7_of_hearts.png' %}" },
+        { name: "H6", image: "{% static 'images/cards/6_of_hearts.png' %}" },
+        { name: "H5", image: "{% static 'images/cards/5_of_hearts.png' %}" },
+        { name: "H4", image: "{% static 'images/cards/4_of_hearts.png' %}" },
+        { name: "H3", image: "{% static 'images/cards/3_of_hearts.png' %}" },
+        { name: "H2", image: "{% static 'images/cards/2_of_hearts.png' %}" },
+        { name: "DA", image: "{% static 'images/cards/ace_of_diamonds.png' %}" },
+        { name: "DK", image: "{% static 'images/cards/king_of_diamonds.png' %}" },
+        { name: "DQ", image: "{% static 'images/cards/queen_of_diamonds.png' %}" },
+        { name: "DJ", image: "{% static 'images/cards/jack_of_diamonds.png' %}" },
+        { name: "DT", image: "{% static 'images/cards/10_of_diamonds.png' %}" },
+        { name: "D9", image: "{% static 'images/cards/9_of_diamonds.png' %}" },
+        { name: "D8", image: "{% static 'images/cards/8_of_diamonds.png' %}" },
+        { name: "D7", image: "{% static 'images/cards/7_of_diamonds.png' %}" },
+        { name: "D6", image: "{% static 'images/cards/6_of_diamonds.png' %}" },
+        { name: "D5", image: "{% static 'images/cards/5_of_diamonds.png' %}" },
+        { name: "D4", image: "{% static 'images/cards/4_of_diamonds.png' %}" },
+        { name: "D3", image: "{% static 'images/cards/3_of_diamonds.png' %}" },
+        { name: "D2", image: "{% static 'images/cards/2_of_diamonds.png' %}" },
+        { name: "CA", image: "{% static 'images/cards/ace_of_clubs.png' %}" },
+        { name: "CK", image: "{% static 'images/cards/king_of_clubs.png' %}" },
+        { name: "CQ", image: "{% static 'images/cards/queen_of_clubs.png' %}" },
+        { name: "CJ", image: "{% static 'images/cards/jack_of_clubs.png' %}" },
+        { name: "CT", image: "{% static 'images/cards/10_of_clubs.png' %}" },
+        { name: "C9", image: "{% static 'images/cards/9_of_clubs.png' %}" },
+        { name: "C8", image: "{% static 'images/cards/8_of_clubs.png' %}" },
+        { name: "C7", image: "{% static 'images/cards/7_of_clubs.png' %}" },
+        { name: "C6", image: "{% static 'images/cards/6_of_clubs.png' %}" },
+        { name: "C5", image: "{% static 'images/cards/5_of_clubs.png' %}" },
+        { name: "C4", image: "{% static 'images/cards/4_of_clubs.png' %}" },
+        { name: "C3", image: "{% static 'images/cards/3_of_clubs.png' %}" },
+        { name: "C2", image: "{% static 'images/cards/2_of_clubs.png' %}" },
+    ];
+    function getCardImage(cardName) {
+        const card = cards.find(c => c.name === cardName);
+        return card ? card.image : "{% static 'images/cards/card_back.jpg' %}";
+    }
+
+    function setCardImage(cardSlotId, cardImageSrc) {
+        const cardSlot = document.getElementById(cardSlotId);
+        if (cardSlot) {
+            const cardImage = document.createElement('img');
+            cardImage.src = cardImageSrc;
+            cardImage.alt = cardSlotId;
+            cardImage.style.width = "100%";
+            cardImage.style.height = "100%";
+            cardSlot.innerHTML = '';
+            cardSlot.appendChild(cardImage);
+        }
+    }
+
+    function closeResults() {
+        const overlay = document.getElementById('overlay');
+        const resultsDiv = document.querySelector('div[style*="position: fixed"]');
+
+        if (overlay) overlay.remove();
+        if (resultsDiv) resultsDiv.remove();
+
+        window.location.href = '{% url "my_bots" %}';
+    }
+
+    const holecards = {{ match.hole_cards|safe }};
+    const communitycards = {{ match.replay_data.communitycards|safe }};
+    const actions = {{ match.replay_data.actions|safe }};
+
+
+    let stepIndex = 0;
+
+    function nextStep() {
+        const steps = [
+            () => {                
+                setCardImage('player-card-1', getCardImage(holecards[0][0]));
+                setCardImage('player-card-2', getCardImage(holecards[0][1]));
+                setCardImage('player-card-3', getCardImage(holecards[1][0]));
+                setCardImage('player-card-4', getCardImage(holecards[1][1]));
+            },
+            () => {
+                setCardImage('community-card-1', getCardImage(communitycards[3][0]));
+                setCardImage('community-card-2', getCardImage(communitycards[3][1]));
+                setCardImage('community-card-3', getCardImage(communitycards[3][2]));
+            },
+            () => setCardImage('community-card-4', getCardImage(communitycards[3][3])),
+            () => setCardImage('community-card-5', getCardImage(communitycards[3][4])),
+            () => {
+                dimPage();
+                showResults(holecards, communitycards[3]);
+                document.getElementById("nextButton").style.display = "none";
+            }
+        ];
+
+        if (stepIndex < steps.length) {
+            steps[stepIndex++]();
+        }
+    }
+
+    function dealCards() {
+        document.getElementById("nextButton").style.display = "block";
+        nextStep();
+    }
+
+    function dimPage() {
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        overlay.style.zIndex = '9999';
+        overlay.id = 'overlay';
+        document.body.appendChild(overlay);
+    }
+
+    function showResults(holecards, communityCards) {
+        const resultsDiv = document.createElement('div');
+        resultsDiv.style.position = 'fixed';
+        resultsDiv.style.top = '50%';
+        resultsDiv.style.left = '50%';
+        resultsDiv.style.transform = 'translate(-50%, -50%)';
+        resultsDiv.style.backgroundColor = '#1f2937';
+        resultsDiv.style.color = 'white';
+        resultsDiv.style.padding = '20px';
+        resultsDiv.style.borderRadius = '10px';
+        resultsDiv.style.textAlign = 'center';
+        resultsDiv.style.fontSize = '1rem';
+        resultsDiv.style.zIndex = '10000';
+        resultsDiv.style.width = '80%';
+        resultsDiv.style.maxWidth = '800px';
+        resultsDiv.style.overflowY = 'auto';
+
+        // Building HTML for community and player cards
+        const communityCardsHTML = communityCards.map(card => 
+            `<img src="${getCardImage(card)}" alt="${card}" style="width: 6%; margin: 5px;">`
+        ).join('');
+        
+        const player1CardsHTML = holecards[0].map(card => 
+            `<img src="${getCardImage(card)}" alt="${card}" style="width: 22%; margin: 1px;">`
+        ).join('');
+        
+        const player2CardsHTML = holecards[1].map(card => 
+            `<img src="${getCardImage(card)}" alt="${card}" style="width: 22%; margin: 1px;">`
+        ).join('');
+
+        resultsDiv.innerHTML = `
+            <h2>Round Complete!</h2>
+            <p>
+                <strong style="color: #ffcc00;">Player 1</strong> wins <strong style="color: #ffcc00;">15605 chips</strong> from the pot with a <strong style="color: rgb(255, 0, 0);">Straight</strong>!
+            </p>
+            <br><br/>
+            <h3>Community Cards</h3>
+            <div>${communityCardsHTML}</div>
+            <br><br/>
+            <h3>Results</h3>
+            <table style="width: 80%; margin-top: 20px; border-collapse: collapse; margin-left: auto; margin-right: auto;">
+                <thead>
+                    <tr>
+                        <th style="padding: 5px;">Player</th>
+                        <th style="padding: 5px; width: 30%;">Player Cards</th>
+                        <th style="padding: 5px; width: 30%;">Best Hand</th>
+                        <th style="padding: 5px;">Combinations</th>
+                        <th style="padding: 5px;">Chips</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 5px; text-align: left;">Player 1</td>
+                        <td style="padding: 5px;">${player1CardsHTML}</td>
+                        <td style="padding: 5px;">Straight</td>
+                        <td style="padding: 5px;">A♠ 5♠ K♦ 6♣ 7♦</td>
+                        <td style="padding: 5px;">15605</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 5px; text-align: left;">Player 2</td>
+                        <td style="padding: 5px;">${player2CardsHTML}</td>
+                        <td style="padding: 5px;">Pair of Kings</td>
+                        <td style="padding: 5px;">K♠ K♣ 5♠ 8♠ 7♦</td>
+                        <td style="padding: 5px;">8950</td>
+                    </tr>
+                </tbody>
+            </table>
+            <br>
+            <button onclick="closeResults()" style="background-color: #ffcc00; padding: 10px 20px; color: #1f2937; border: none; font-size: 18px; cursor: pointer;">
+                Done
+            </button>
+        `;
+
+        document.body.appendChild(resultsDiv);
+    }
+
+    window.onload = dealCards;
+</script>
+<!-- <script src="{% static 'js/game.js' %}"></script> -->
 
 {% endblock %}

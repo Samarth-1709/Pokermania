@@ -75,63 +75,63 @@ document.getElementById('botFile')?.addEventListener('change', function(e) {
 });
 
 
- // Password strength validation
-document.getElementById('signupPassword').addEventListener('input', function() {
-    let password = this.value;
-    let message = '';
+//  // Password strength validation
+// document.getElementById('signupPassword').addEventListener('input', function() {
+//     let password = this.value;
+//     let message = '';
 
-    // Check password length
-    if (password.length < 8) {
-        message += 'Password must be at least 8 characters long.\n';
-    }
-    // Check if password contains a number
-    if (!/\d/.test(password)) {
-        message += 'Password must contain at least one number.\n';
-    }
-    // Check if password contains a special character
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-        message += 'Password must contain at least one special character.\n';
-    }
-    // Check if password contains an uppercase letter
-    if (!/[A-Z]/.test(password)) {
-        message += 'Password must contain at least one uppercase letter.\n';
-    }
+//     // Check password length
+//     if (password.length < 8) {
+//         message += 'Password must be at least 8 characters long.\n';
+//     }
+//     // Check if password contains a number
+//     if (!/\d/.test(password)) {
+//         message += 'Password must contain at least one number.\n';
+//     }
+//     // Check if password contains a special character
+//     if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+//         message += 'Password must contain at least one special character.\n';
+//     }
+//     // Check if password contains an uppercase letter
+//     if (!/[A-Z]/.test(password)) {
+//         message += 'Password must contain at least one uppercase letter.\n';
+//     }
 
-    // Display password strength message
-    document.getElementById('passwordMessage').textContent = message;
+//     // Display password strength message
+//     document.getElementById('passwordMessage').textContent = message;
 
-    // Clear message if password is valid
-    if (message === '') {
-        document.getElementById('passwordMessage').textContent = '';
-    }
+//     // Clear message if password is valid
+//     if (message === '') {
+//         document.getElementById('passwordMessage').textContent = '';
+//     }
 
-    // Recheck password match when password is changed
-    checkPasswordMatch();
-});
+//     // Recheck password match when password is changed
+//     checkPasswordMatch();
+// });
 
-// Password match validation
-document.getElementById('confirmPassword').addEventListener('input', function() {
-    checkPasswordMatch();
-});
+// // Password match validation
+// document.getElementById('confirmPassword').addEventListener('input', function() {
+//     checkPasswordMatch();
+// });
 
-function checkPasswordMatch() {
-    let password = document.getElementById('signupPassword').value;
-    let confirmPassword = document.getElementById('confirmPassword').value;
-    let matchMessage = '';
+// function checkPasswordMatch() {
+//     let password = document.getElementById('signupPassword').value;
+//     let confirmPassword = document.getElementById('confirmPassword').value;
+//     let matchMessage = '';
 
-    // Only perform the check if both fields have content
-    if (password && confirmPassword) {
-        if (password !== confirmPassword) {
-            matchMessage = 'Passwords do not match!';
-            document.getElementById('passwordMatchMessage').style.color = 'red';
-        } else {
-            matchMessage = 'Passwords match!';
-            document.getElementById('passwordMatchMessage').style.color = 'green';
-        }
-    } else {
-        matchMessage = ''; // Clear the message if either field is empty
-    }
+//     // Only perform the check if both fields have content
+//     if (password && confirmPassword) {
+//         if (password !== confirmPassword) {
+//             matchMessage = 'Passwords do not match!';
+//             document.getElementById('passwordMatchMessage').style.color = 'red';
+//         } else {
+//             matchMessage = 'Passwords match!';
+//             document.getElementById('passwordMatchMessage').style.color = 'green';
+//         }
+//     } else {
+//         matchMessage = ''; // Clear the message if either field is empty
+//     }
 
-    // Display password match message
-    document.getElementById('passwordMatchMessage').textContent = matchMessage;
-}
+//     // Display password match message
+//     document.getElementById('passwordMatchMessage').textContent = matchMessage;
+// }

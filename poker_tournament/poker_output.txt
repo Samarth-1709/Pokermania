@@ -1,0 +1,14 @@
+Started the round 1
+Street "preflop" started. (community card = [])
+"demo1" declared "call:100"
+"demo3" declared "call:100"
+Street "flop" started. (community card = ['S7', 'HJ', 'D6'])
+"demo1" declared "call:0"
+"demo3" declared "call:0"
+Street "turn" started. (community card = ['S7', 'HJ', 'D6', 'H6'])
+"demo1" declared "call:0"
+"demo3" declared "call:0"
+Street "river" started. (community card = ['S7', 'HJ', 'D6', 'H6', 'C5'])
+"demo1" declared "call:0"
+"demo3" declared "call:0"
+"['demo3']" won the round 1 (stack = {'demo3': 1100, 'demo1': 900})

@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model,logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render,redirect
-
+import re
 
 User = get_user_model()
 
@@ -24,19 +24,19 @@ def register(request):
             messages.error(request, "Passwords do not match!")
             return redirect('/login/')
 
-        # Check if password meets strength requirements
-        if len(password) < 8:
-            messages.error(request, "Password must be at least 8 characters long.")
-            return redirect('/login/')
-        if not re.search(r'\d', password):
-            messages.error(request, "Password must contain at least one number.")
-            return redirect('/login/')
-        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-            messages.error(request, "Password must contain at least one special character.")
-            return redirect('/login/')
-        if not re.search(r'[A-Z]', password):
-            messages.error(request, "Password must contain at least one uppercase letter.")
-            return redirect('/login/')
+        # # Check if password meets strength requirements
+        # if len(password) < 8:
+        #     messages.error(request, "Password must be at least 8 characters long.")
+        #     return redirect('/login/')
+        # if not re.search(r'\d', password):
+        #     messages.error(request, "Password must contain at least one number.")
+        #     return redirect('/login/')
+        # if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        #     messages.error(request, "Password must contain at least one special character.")
+        #     return redirect('/login/')
+        # if not re.search(r'[A-Z]', password):
+        #     messages.error(request, "Password must contain at least one uppercase letter.")
+        #     return redirect('/login/')
         
         # Check if the username already exists
         if User.objects.filter(username=username).exists():
@@ -60,14 +60,14 @@ def register(request):
 
 @login_required
 def upload_bot(request):
-    """
-    Handles bot file upload and triggers matches with all existing bots.
-    """
+
     user = request.user
     bot_name = request.POST.get('name')
     bot_file = request.FILES['file']
+    if Bot.objects.filter(user=user).count() >= 3:
+        return render(request, 'deploy_bot.html', {'message': "You can only upload a maximum of 3 bots."})
 
-    new_bot = Bot.objects.create(user=user, name=bot_name, file=bot_file, chips=10000)
+    new_bot = Bot.objects.create(user=user, name=bot_name, file=bot_file)
 
     existing_bots = Bot.objects.exclude(user=user)
 
@@ -101,7 +101,6 @@ def leaderboard(request):
             'botName': bot.name,
             'owner': bot.user.username,
             'wins': bot.wins,
-            'totalGames': bot.total_games,
             'winRate': f"{win_rate:.1f}%",
             'earnings': earnings
         })
@@ -148,7 +147,7 @@ def my_bots(request):
                 'result': match.winner,
                 'date': match.played_at,
                 'chips_exchanged': match.chips_exchanged,
-                'replay_data': match.replay_data
+                'game_id': match.game_id,
             })
         
         for match in matches_as_bot2:
@@ -157,10 +156,10 @@ def my_bots(request):
                 'result': match.winner,
                 'date': match.played_at,
                 'chips_exchanged': match.chips_exchanged,
-                'replay_data': match.replay_data
+                'game_id': match.game_id
             })
 
-        bot_matches[bot.id] = matches
+        bot_matches[bot] = matches
     return render(request, 'bots.html', {'bots': bots, 'bot_matches': bot_matches})
 
 
@@ -171,7 +170,24 @@ def logout_view(request):
 
 def replay(request, game_id):
     match = Match.objects.get(game_id=game_id)
-    return render(request, 'game.html', {'match': match})
+    
+    player_1 = match.player_1
+    player_2 = match.player_2
+    
+    current_user = request.user
+    
+    if current_user == player_1:
+        opponent_cards_visible = 'player_2_cards_face_down'
+    elif current_user == player_2:
+        opponent_cards_visible = 'player_1_cards_face_down'
+    else:
+        opponent_cards_visible = None
+
+    return render(request, 'game.html', {
+        'match': match,
+        'opponent_cards_visible': opponent_cards_visible,
+    })
+
 
 @login_required
 def deploy_bot(request):

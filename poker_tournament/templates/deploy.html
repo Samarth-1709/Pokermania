@@ -24,6 +24,12 @@
                 <form id="botUploadForm" method="POST" action="{% url 'upload_bot' %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     
+                    {% if message %}
+                        <div class="alert alert-danger">
+                            <strong>Error:</strong> {{ message }}
+                        </div>
+                    {% endif %}
+            
                     <div class="form-group">
                         <label for="botName">Bot Name</label>
                         <input type="text" name="name" id="botName" required>
@@ -43,7 +49,6 @@
                 </form>
             </div>
             
-
             <div class="deployment-status" style="display: none;">
                 <h2>Deployment Status</h2>
                 <div id="statusMessage"></div>
