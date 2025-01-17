@@ -1,33 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Bots - PokerBots Arena</title>
-    <link rel="stylesheet" href="pokercss.css">
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}User Bots - PokerBots Arena{% endblock %}
+
+{% load static %}
+
+{% block content %}
     <div class="video-container">
         <video autoplay muted loop playsinline id="bg-video">
             <source src="https://img.pikbest.com/09/42/51/38DpIkbEsTq9v.mp4" type="video/mp4">
             Your browser does not support HTML5 video.
         </video>
     </div>
-
-    <nav class="navbar">
-        <div class="container">
-            <button class="logo" onclick="window.location.href='play.html'">
-                <div class="suit-container">
-                    <!-- SVG Suit Icons here -->
-                </div>
-                PokerBots Arena
-            </button>
-            <div class="nav-buttons">
-                <button onclick="window.location.href='play.html'">Play</button>
-                <button onclick="window.location.href='leaderboard.html'">Leaderboard</button>
-            </div>
-        </div>
-    </nav>
 
     <div id="user-bots-page" class="page">
         <div class="container">
@@ -59,13 +42,25 @@
                         </tr>
                     </thead>
                     <tbody id="replaysBody">
-                        <!-- Replay data will be populated here -->
+                        {% for bot_data in bot_matches %}
+                            {% for match in bot_data.matches %}
+                                <tr>
+                                    <td>{{ match.replay_data.id }}</td>
+                                    <td>{{ bot_data.bot.name }}</td>
+                                    <td>{{ match.opponent }}</td>
+                                    <td>{{ match.date }}</td>
+                                    <td>{{ match.result }}</td>
+                                    <td>{{ match.chips_exchanged }}</td>
+                                    <td>
+                                        <button class="replay-btn" data-bot-id="{{ bot_data.bot.id }}" data-replay-id="{{ match.replay_data.id }}">Replay</button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
-</body>
-</html>
+{% endblock %}

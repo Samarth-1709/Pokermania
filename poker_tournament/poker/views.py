@@ -1,44 +1,66 @@
 from django.http import JsonResponse
 from .models import Bot, Match
 from .utils import play_match
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import get_user_model,logout
+from django.contrib import messages
+from django.contrib.auth import get_user_model,logout, authenticate, login
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render,redirect
+
 
 User = get_user_model()
 
 
-@api_view(['POST'])
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
 def register(request):
-    username = request.data.get('username')
-    password = request.data.get('password')
-    if User.objects.filter(username=username).exists():
-        return JsonResponse({'error': 'Username already taken'}, status=400)
-    user = User.objects.create_user(username=username, password=password)
-    return render(request,'home.html')
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        confirmPassword = request.POST.get('confirmPassword')
+
+        if password != confirmPassword:
+            messages.error(request, "Passwords do not match!")
+            return redirect('/login/')
+        user = User.objects.filter(username=username)
+
+        if user.exists():
+            messages.info(request, "Username already taken!")
+            return redirect('/login/')
+        
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+        
+        user.set_password(password)
+        user.save()
+        
+        messages.info(request, "Account created Successfully!")
+        return redirect('/login/')
+    
+    return render(request, 'login.html')
 
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
+
+@login_required
 def upload_bot(request):
     """
     Handles bot file upload and triggers matches with all existing bots.
     """
     user = request.user
-    bot_name = request.data.get('name')
+    bot_name = request.POST.get('name')
     bot_file = request.FILES['file']
 
     new_bot = Bot.objects.create(user=user, name=bot_name, file=bot_file, chips=10000)
 
-    existing_bots = Bot.objects.exclude(id=new_bot.id)
+    existing_bots = Bot.objects.exclude(user=user)
 
     for existing_bot in existing_bots:
         for match_number in range(1, 4):
             winner, chips_exchanged, replay_data, hole_cards = play_match(new_bot.file.path, existing_bot.file.path, new_bot, existing_bot)
 
-            # Save match details in the database
             Match.objects.create(
                 bot1=new_bot,
                 bot2=existing_bot,
@@ -49,20 +71,15 @@ def upload_bot(request):
                 hole_cards=hole_cards
             )
 
-    return JsonResponse({
-        'message': 'Bot uploaded successfully',
-    })
+    return redirect('/my_bots/')
     
 
 
 def leaderboard(request):
-    # Fetch bots and order by wins
     bots = Bot.objects.all().order_by('-wins')
-    
-    # Prepare the leaderboard data
     data = []
     for idx, bot in enumerate(bots, start=1):
-        win_rate = (bot.wins / bot.total_games * 100) if bot.total_games else 0  # Avoid division by zero
+        win_rate = (bot.wins / bot.total_games * 100) if bot.total_games else 0
         earnings = f"${bot.chips_won:,.0f}"
         
         data.append({
@@ -82,37 +99,55 @@ def home(request):
     user_logged_in = request.user.is_authenticated
     return render(request, 'home.html', {'user_logged_in': user_logged_in})
 
-def login(request):
+
+def login_view(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        if not User.objects.filter(username=username).exists():
+            messages.error(request, 'Username aldready exists')
+            return redirect('/login/')
+        user = authenticate(username=username, password=password)
+        
+        if user is None:
+            messages.error(request, "Invalid Password")
+            return redirect('/login/')
+        else:
+            login(request, user)
+            return redirect('/')
+    
     return render(request, 'login.html')
 
-@permission_classes([IsAuthenticated])
+
+@login_required
 def my_bots(request):
     bots = Bot.objects.filter(user=request.user)
-    return render(request, 'bots.html', {'bots': bots})
+    bot_matches = {}
+    for bot in bots:
+        matches_as_bot1 = Match.objects.filter(bot1=bot)
+        matches_as_bot2 = Match.objects.filter(bot2=bot)
+        matches = []
+        for match in matches_as_bot1:
+            matches.append({
+                'opponent': match.bot2.name,
+                'result': match.winner,
+                'date': match.played_at,
+                'chips_exchanged': match.chips_exchanged,
+                'replay_data': match.replay_data
+            })
+        
+        for match in matches_as_bot2:
+            matches.append({
+                'opponent': match.bot1.name,
+                'result': match.winner,
+                'date': match.played_at,
+                'chips_exchanged': match.chips_exchanged,
+                'replay_data': match.replay_data
+            })
 
-def bot_replays(request):
-    bot_name = request.GET.get('bot_name', 'all')
-
-    # Get bot matches based on the selected bot filter
-    if bot_name == 'all':
-        matches = Match.objects.all()
-    else:
-        bot = Bot.objects.get(name=bot_name)
-        matches = Match.objects.filter(bot1=bot) | Match.objects.filter(bot2=bot)
-
-    replay_data = []
-    for match in matches:
-        opponent = match.bot2 if match.bot1.name == bot_name else match.bot1
-        replay_data.append({
-            'replay_id': match.game_id,
-            'bot_name': bot_name,
-            'opponent': opponent.name,
-            'date': match.played_at.strftime('%Y-%m-%d'),
-            'result': match.winner,
-            'earnings': f"${match.chips_exchanged}",
-        })
-
-    return JsonResponse(replay_data, safe=False)
+        bot_matches[bot.id] = matches
+    return render(request, 'bots.html', {'bots': bots, 'bot_matches': bot_matches})
 
 
 
@@ -124,5 +159,6 @@ def replay(request, game_id):
     match = Match.objects.get(game_id=game_id)
     return render(request, 'game.html', {'match': match})
 
+@login_required
 def deploy_bot(request):
     return render(request, 'deploy.html')

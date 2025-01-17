@@ -1,0 +1,128 @@
+body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-image: url('images/table1.jpg'); /* Set your background image */
+    background-size: cover; /* Cover the entire screen */
+    background-position: center; /* Center the image */
+    color: white;
+}
+
+.game-container {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-table {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    grid-gap: 2rem;
+    align-items: center;
+    justify-items: center;
+    width: 100%;
+    position: relative;
+}
+
+.opponent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem; /* Keeps a smaller gap between opponent's balance and cards */
+    margin-bottom: 0.5rem; /* Reduce space below opponent's cards */
+}
+
+.player-cards {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.balance {
+    font-size: 1rem;
+    font-weight: bold;
+    
+    color: #ffd700;
+}
+
+.card-slot {
+    width: 60px;
+    height: 84px;
+    
+    background-color: #1caa03;
+    position: relative;
+    display: flex;
+    align-items: center; /* Vertically center content */
+    justify-content: center; /* Horizontally center content */
+    color: white;
+    font-size: 1.2rem; /* Adjust font size if needed */
+    font-weight: bold;
+}
+
+.card-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image covers the entire slot without distortion */
+}
+
+.center-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem; /* Reduced gap between community cards */
+    margin-top: 0.5rem; /* Reduce space above the community cards */
+}
+
+.card-pack {
+    width: 60px;
+    height: 84px;
+    background-color: #ef4444;
+    border: 2px solid white; /* Solid border instead of dotted line */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    background-image: url('images/cards/card_back.jpg'); /* Set the card back image here */
+    background-size: cover;  /* Ensure the image covers the entire slot */
+    background-position: center; /* Center the card back image */
+}
+
+
+.community-cards {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.pot {
+    margin-top: 1.5rem;
+    font-size: 2.0rem; /* Increased font size */
+    font-weight: bold;
+    color: #ffd700;
+}
+
+.bet {
+    position: absolute;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #ffd700;
+    background-color: #1f2937;
+    border: 1px solid #ffd700;
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+}
+
+.bet-left {
+    top: 50%;
+    left: calc(25% - 50px);
+    transform: translateY(-50%);
+}
+
+.bet-right {
+    top: 50%;
+    right: calc(25% - 50px);
+    transform: translateY(-50%);
+}
