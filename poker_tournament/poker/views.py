@@ -64,8 +64,8 @@ def upload_bot(request):
     user = request.user
     bot_name = request.POST.get('name')
     bot_file = request.FILES['file']
-    if Bot.objects.filter(user=user).count() >= 3:
-        return render(request, 'deploy_bot.html', {'message': "You can only upload a maximum of 3 bots."})
+    # if Bot.objects.filter(user=user).count() >= 3:
+    #     return render(request, 'deploy.html', {'message': "You can only upload a maximum of 3 bots."})
 
     new_bot = Bot.objects.create(user=user, name=bot_name, file=bot_file)
 
@@ -168,27 +168,22 @@ def logout_view(request):
     logout(request)
     return redirect('home')
 
-def replay(request, game_id):
-    match = Match.objects.get(game_id=game_id)
-    
-    player_1 = match.player_1
-    player_2 = match.player_2
-    
-    current_user = request.user
-    
-    if current_user == player_1:
-        opponent_cards_visible = 'player_2_cards_face_down'
-    elif current_user == player_2:
-        opponent_cards_visible = 'player_1_cards_face_down'
-    else:
-        opponent_cards_visible = None
-
-    return render(request, 'game.html', {
-        'match': match,
-        'opponent_cards_visible': opponent_cards_visible,
-    })
-
-
 @login_required
 def deploy_bot(request):
     return render(request, 'deploy.html')
+
+def replay(request, game_id):
+    match = Match.objects.get(game_id=game_id)
+    player=""
+    if(match.bot1.user == request.user):
+        player="L"
+    elif(match.bot2.user == request.user):
+        player="R"
+    else:
+        return redirect('/my_bots/')   
+
+    return render(request, 'game.html', {
+        'match': match,
+        "player":player
+    })
+    

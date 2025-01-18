@@ -1,9 +1,8 @@
 from pypokerengine.players import BasePokerPlayer
-
+from typing import final
 class Base(BasePokerPlayer):
     
     def __init__(self):
-        # Store the history of actions, community cards, and pot
         self.hole_cards=[]
         
     def declare_action(self, valid_actions, hole_card, round_state):
@@ -11,7 +10,8 @@ class Base(BasePokerPlayer):
     
     def receive_game_start_message(self, game_info):
         pass
-    
+
+    @final
     def receive_round_start_message(self, round_count, hole_card, seats):
         self.hole_cards=hole_card
 

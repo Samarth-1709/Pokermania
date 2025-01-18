@@ -13,20 +13,30 @@ Game Table
 {% block content %}
 <div class="game-container">
     <div class="game-table">
-        <!-- Opponent 1 -->
-        <div class="opponent">
-            <h2>Opponent 1</h2>
-            <div class="balance">$500</div>
-            <div class="player-cards">
-                <div class="card-slot" id="player-card-1"></div>
-                <div class="card-slot" id="player-card-2"></div>
+        {% if player == "L" %}
+            <div class="opponent">
+                <h2>{{ match.bot1.name }}</h2>
+                <div class="balance" id="player1-balance">$1000</div>
+                <div class="player-cards">
+                    <div class="card-slot" id="player1-card-1"></div>
+                    <div class="card-slot" id="player1-card-2"></div>
+                </div>
+                <div class="actions" id="player1-actions"></div>
             </div>
-        </div>
+        {% else %}
+            <div class="opponent">
+                <h2>{{ match.bot2.name }}</h2>
+                <div class="balance" id="player2-balance">$1000</div>
+                <div class="player-cards">
+                    <div class="card-slot" id="player2-card-1"></div>
+                    <div class="card-slot" id="player2-card-2"></div>
+                </div>
+                <div class="actions" id="player2-actions"></div>
+            </div>
+        {% endif %}
 
-        <!-- Bet Amount Left -->
-        <div class="bet bet-left">$50</div>
+        <div class="bet bet-left" id="bet-left">$0</div>
 
-        <!-- Card Pack and Community Cards -->
         <div class="center-area">
             <div class="card-pack"></div>
             <div class="community-cards">
@@ -36,22 +46,35 @@ Game Table
                 <div class="card-slot" id="community-card-4"></div>
                 <div class="card-slot" id="community-card-5"></div>
             </div>
-            <div class="pot">Pot: $200</div>
+            <div class="pot" id="pot">Pot: $0</div>
             <div class="next-button">
                 <button onclick="nextStep()">Next</button>
             </div>
         </div>
 
-        <div class="opponent">
-            <h2>{{ match.bot1.name }}</h2>
-            <div class="balance">$450</div>
-            <div class="player-cards">
-                <div class="card-slot" id="player-card-3"></div>
-                <div class="card-slot" id="player-card-4"></div>
+        {% if player == "R" %}
+            <div class="opponent">
+                <h2>{{ match.bot1.name }}</h2>
+                <div class="balance" id="player1-balance">$1000</div>
+                <div class="player-cards">
+                    <div class="card-slot" id="player1-card-1"></div>
+                    <div class="card-slot" id="player1-card-2"></div>
+                </div>
+                <div class="actions" id="player1-actions"></div>
             </div>
-        </div>
-        <!-- Bet Amount Right -->
-        <div class="bet bet-right">$70</div>
+        {% else %}
+            <div class="opponent">
+                <h2>{{ match.bot2.name }}</h2>
+                <div class="balance" id="player2-balance">$1000</div>
+                <div class="player-cards">
+                    <div class="card-slot" id="player2-card-1"></div>
+                    <div class="card-slot" id="player2-card-2"></div>
+                </div>
+                <div class="actions" id="player2-actions"></div>
+            </div>
+        {% endif %}
+
+        <div class="bet bet-right" id="bet-right">$0</div>
     </div>
 </div>
 <script>
@@ -114,6 +137,10 @@ Game Table
         return card ? card.image : "{% static 'images/cards/card_back.jpg' %}";
     }
 
+    const holecards = {{ match.hole_cards|safe }};
+    const communitycards = {{ match.replay_data.communitycards|safe }};
+    const actions = {{ match.replay_data.actions|safe }};
+
     function setCardImage(cardSlotId, cardImageSrc) {
         const cardSlot = document.getElementById(cardSlotId);
         if (cardSlot) {
@@ -137,43 +164,109 @@ Game Table
         window.location.href = '{% url "my_bots" %}';
     }
 
-    const holecards = {{ match.hole_cards|safe }};
-    const communitycards = {{ match.replay_data.communitycards|safe }};
-    const actions = {{ match.replay_data.actions|safe }};
-
-
-    let stepIndex = 0;
-
-    function nextStep() {
-        const steps = [
-            () => {                
-                setCardImage('player-card-1', getCardImage(holecards[0][0]));
-                setCardImage('player-card-2', getCardImage(holecards[0][1]));
-                setCardImage('player-card-3', getCardImage(holecards[1][0]));
-                setCardImage('player-card-4', getCardImage(holecards[1][1]));
-            },
-            () => {
-                setCardImage('community-card-1', getCardImage(communitycards[3][0]));
-                setCardImage('community-card-2', getCardImage(communitycards[3][1]));
-                setCardImage('community-card-3', getCardImage(communitycards[3][2]));
-            },
-            () => setCardImage('community-card-4', getCardImage(communitycards[3][3])),
-            () => setCardImage('community-card-5', getCardImage(communitycards[3][4])),
-            () => {
-                dimPage();
-                showResults(holecards, communitycards[3]);
-                document.getElementById("nextButton").style.display = "none";
-            }
-        ];
-
-        if (stepIndex < steps.length) {
-            steps[stepIndex++]();
-        }
+    function setPlayerCards() {
+        setCardImage("player1-card-1", getCardImage(holecards[0][0]));
+        setCardImage("player1-card-2", getCardImage(holecards[0][1]));
+        setCardImage("player2-card-1", getCardImage(holecards[1][0]));
+        setCardImage("player2-card-2", getCardImage(holecards[1][1]));
     }
+    setPlayerCards();
 
-    function dealCards() {
-        document.getElementById("nextButton").style.display = "block";
-        nextStep();
+    let currentStreet = 0; // 0 = preflop, 1 = flop, 2 = turn, 3 = river
+    let actionIndex = 0; // Action index for the current street
+    let pot = 0; // Total pot amount
+    let player1Balance=1000;
+    let player2Balance=1000;
+    let isfold=false;
+
+    const potElement = document.getElementById("pot");
+    const betLeftElement = document.getElementById("bet-left");
+    const betRightElement = document.getElementById("bet-right");
+    const player1BalanceElement = document.getElementById("player1-balance");
+    const player2BalanceElement = document.getElementById("player2-balance");
+    const player1ActionsElement = document.getElementById("player1-actions");
+    const player2ActionsElement = document.getElementById("player2-actions");
+
+    let player1Name="{{ match.bot1.name|safe }}";
+    let player2Name="{{ match.bot2.name|safe }}";
+    let player1Bet = 0;
+    let player2Bet = 0;
+    let done = false;
+    player1ActionsElement.classList.add("hidden");
+    player2ActionsElement.classList.add("hidden"); 
+
+    function nextStep(){
+        const streets = ["preflop", "flop", "turn", "river"];
+        const street = streets[currentStreet];
+        const streetActions = actions[street];
+
+        if (actionIndex === 0) {
+            player1ActionsElement.classList.add("hidden");
+            player2ActionsElement.classList.add("hidden");
+        }
+
+        if (actionIndex < streetActions.name.length) {
+            const playerName = streetActions.name[actionIndex];
+            const playerAction = streetActions.action[actionIndex];
+            const actionAmount = streetActions.amount[actionIndex];
+
+            if (playerName === player1Name) {
+                player1Balance -= actionAmount-player1Bet;
+                player1Bet = actionAmount;
+                betLeftElement.textContent = `$${player1Bet}`;
+                player1ActionsElement.textContent = `${playerAction}`;
+                player1BalanceElement.textContent = `$${player1Balance}`;
+                player1ActionsElement.classList.remove("hidden");
+                player2ActionsElement.classList.add("hidden");
+
+            } else if (playerName === player2Name) {
+                player2Balance -= actionAmount-player2Bet;
+                player2Bet = actionAmount;
+                betRightElement.textContent = `$${player2Bet}`;
+                player2ActionsElement.textContent = `${playerAction}`;
+                player2BalanceElement.textContent = `$${player2Balance}`;
+                player2ActionsElement.classList.remove("hidden");
+                player1ActionsElement.classList.add("hidden");
+            }
+            if(playerAction === "fold"){
+                isfold=true;
+                done=true;
+            }
+            actionIndex++;
+        } 
+        else if(!done){
+            if (actionIndex === streetActions.name.length) {
+                player1ActionsElement.classList.add("hidden");
+                player2ActionsElement.classList.add("hidden");
+                pot += player1Bet + player2Bet;
+                potElement.textContent = `Pot: $${pot}`;
+
+                player1Bet = 0;
+                player2Bet = 0;
+                betLeftElement.textContent = `$${player1Bet}`;
+                betRightElement.textContent = `$${player2Bet}`;
+                potElement.textContent = `Pot: $${pot}`;
+                actionIndex = 0;
+
+                if (currentStreet < streets.length - 1) {
+                    currentStreet++;
+                    if (currentStreet === 1) {
+                        setCardImage("community-card-1", getCardImage(communitycards[3][0]));
+                        setCardImage("community-card-2", getCardImage(communitycards[3][1]));
+                        setCardImage("community-card-3", getCardImage(communitycards[3][2]));
+                    } else if (currentStreet === 2) {
+                        setCardImage("community-card-4", getCardImage(communitycards[3][3]));
+                    } else if (currentStreet === 3) {
+                        setCardImage("community-card-5", getCardImage(communitycards[3][4]));
+                        done=true;
+                    }
+                }
+            }
+        }
+        else{
+            dimPage();
+            showResults(holecards, communitycards[3]);
+        }
     }
 
     function dimPage() {
@@ -188,6 +281,8 @@ Game Table
         overlay.id = 'overlay';
         document.body.appendChild(overlay);
     }
+
+    
 
     function showResults(holecards, communityCards) {
         const resultsDiv = document.createElement('div');
@@ -206,11 +301,14 @@ Game Table
         resultsDiv.style.maxWidth = '800px';
         resultsDiv.style.overflowY = 'auto';
 
-        // Building HTML for community and player cards
-        const communityCardsHTML = communityCards.map(card => 
-            `<img src="${getCardImage(card)}" alt="${card}" style="width: 6%; margin: 5px;">`
-        ).join('');
-        
+        let communityCardsHTML=null;
+
+        if(!isfold){
+            communityCardsHTML = communityCards.map(card => 
+                `<img src="${getCardImage(card)}" alt="${card}" style="width: 6%; margin: 5px;">`
+            ).join('');
+        }
+
         const player1CardsHTML = holecards[0].map(card => 
             `<img src="${getCardImage(card)}" alt="${card}" style="width: 22%; margin: 1px;">`
         ).join('');
@@ -219,54 +317,67 @@ Game Table
             `<img src="${getCardImage(card)}" alt="${card}" style="width: 22%; margin: 1px;">`
         ).join('');
 
-        resultsDiv.innerHTML = `
-            <h2>Round Complete!</h2>
-            <p>
-                <strong style="color: #ffcc00;">Player 1</strong> wins <strong style="color: #ffcc00;">15605 chips</strong> from the pot with a <strong style="color: rgb(255, 0, 0);">Straight</strong>!
-            </p>
-            <br><br/>
-            <h3>Community Cards</h3>
-            <div>${communityCardsHTML}</div>
-            <br><br/>
-            <h3>Results</h3>
-            <table style="width: 80%; margin-top: 20px; border-collapse: collapse; margin-left: auto; margin-right: auto;">
-                <thead>
-                    <tr>
-                        <th style="padding: 5px;">Player</th>
-                        <th style="padding: 5px; width: 30%;">Player Cards</th>
-                        <th style="padding: 5px; width: 30%;">Best Hand</th>
-                        <th style="padding: 5px;">Combinations</th>
-                        <th style="padding: 5px;">Chips</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td style="padding: 5px; text-align: left;">Player 1</td>
-                        <td style="padding: 5px;">${player1CardsHTML}</td>
-                        <td style="padding: 5px;">Straight</td>
-                        <td style="padding: 5px;">A♠ 5♠ K♦ 6♣ 7♦</td>
-                        <td style="padding: 5px;">15605</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 5px; text-align: left;">Player 2</td>
-                        <td style="padding: 5px;">${player2CardsHTML}</td>
-                        <td style="padding: 5px;">Pair of Kings</td>
-                        <td style="padding: 5px;">K♠ K♣ 5♠ 8♠ 7♦</td>
-                        <td style="padding: 5px;">8950</td>
-                    </tr>
-                </tbody>
-            </table>
-            <br>
-            <button onclick="closeResults()" style="background-color: #ffcc00; padding: 10px 20px; color: #1f2937; border: none; font-size: 18px; cursor: pointer;">
-                Done
-            </button>
-        `;
+        const chips_exchanged= {{ match.chips_exchanged|safe }};
+        const winner = "{{ match.winner|safe }}";
+
+        let resultsHTML = `
+    <h2>Round Complete!</h2>
+    <p>
+        <strong style="color: #ffcc00;">${winner}</strong> wins <strong style="color: #00ff00;">${chips_exchanged}</strong> from the pot!
+    </p>
+    <br><br/>
+`;
+
+if (!isfold) {
+    resultsHTML += `
+        <h3>Community Cards</h3>
+        <div>${communityCardsHTML}</div>
+        <br><br/>
+    `;
+}
+
+// Helper function to determine the chip text and color
+const getChipsHTML = (playerName) => {
+    if (playerName === winner) {
+        return `<span style="color: #00ff00;">+${chips_exchanged}</span>`;
+    } else {
+        return `<span style="color: #ff0000;">-${chips_exchanged}</span>`;
+    }
+};
+
+resultsHTML += `
+    <h3>Results</h3>
+    <table style="width: 80%; margin-top: 20px; border-collapse: collapse; margin-left: auto; margin-right: auto;">
+        <thead>
+            <tr>
+                <th style="padding: 5px;">Player</th>
+                <th style="padding: 5px; width: 30%;">Player Cards</th>
+                <th style="padding: 5px;">Chips</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="padding: 5px;">${player1Name}</td>
+                <td style="padding: 0px;">${player1CardsHTML}</td>
+                <td style="padding: 5px;">${getChipsHTML(player1Name)}</td>
+            </tr>
+            <tr>
+                <td style="padding: 5px;">${player2Name}</td>
+                <td style="padding: 5px;">${player2CardsHTML}</td>
+                <td style="padding: 5px;">${getChipsHTML(player2Name)}</td>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    <button onclick="closeResults()" style="background-color: #ffcc00; padding: 10px 20px; color: #1f2937; border: none; font-size: 18px; cursor: pointer;">
+        Done
+    </button>
+`;
+
+resultsDiv.innerHTML = resultsHTML;
 
         document.body.appendChild(resultsDiv);
     }
-
-    window.onload = dealCards;
 </script>
-<!-- <script src="{% static 'js/game.js' %}"></script> -->
 
 {% endblock %}

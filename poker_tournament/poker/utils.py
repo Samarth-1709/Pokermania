@@ -83,9 +83,7 @@ def load_bot(filepath):
 
 
 def play_match(bot1_path, bot2_path, bot1, bot2):
-    """
-    Simulates a match between two bots and updates their chips based on the outcome.
-    """
+    
     bot1_instance = load_bot(bot1_path)
     bot2_instance = load_bot(bot2_path)
 
@@ -100,7 +98,7 @@ def play_match(bot1_path, bot2_path, bot1, bot2):
     bot1_stack = result["players"][0]["stack"]
     bot2_stack = result["players"][1]["stack"]
 
-    chips_exchanged = abs(bot1_stack - bot2_stack)
+    chips_exchanged = abs(bot1_stack - bot2_stack)/2
     if bot1_stack > bot2_stack:
         bot1.chips_won += chips_exchanged
         bot2.chips_won -= chips_exchanged
@@ -117,7 +115,7 @@ def play_match(bot1_path, bot2_path, bot1, bot2):
 
     bot1.save()
     bot2.save()
-    hole_cards = [bot1_instance.hole_cards,bot2_instance.hole_cards]
+    hole_cards =[bot1_instance.hole_cards, bot2_instance.hole_cards]
 
     return winner, chips_exchanged, replay_data, hole_cards
 

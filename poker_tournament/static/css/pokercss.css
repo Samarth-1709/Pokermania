@@ -524,3 +524,38 @@ textarea {
         border: 1px solid;
     }
 }
+.replay-btn {
+    display: inline-block;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    background-color: #ce1212;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.replay-btn:hover {
+    background-color: #218838; /* Darker green on hover */
+    transform: scale(1.05); /* Slightly enlarge */
+}
+
+.replay-btn:active {
+    background-color: #1e7e34; /* Even darker green on click */
+    transform: scale(0.95); /* Slightly shrink */
+}
+
+
+.win {
+    color: rgb(15, 244, 15);
+    font-weight: bold;
+}
+
+.loss {
+    color: rgb(255, 32, 32);
+    font-weight: bold;
+}

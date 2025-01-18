@@ -126,3 +126,22 @@ body {
     right: calc(25% - 50px);
     transform: translateY(-50%);
 }
+
+.actions {
+    margin-top: 10px;
+    font-size: 1rem; /* Match other font sizes like .balance */
+    font-weight: bold;
+    color: #ffd700; /* Gold color to match the balance and pot */
+    text-align: center;
+    background-color: #1f2937; /* Dark background consistent with .bet */
+    padding: 0.5rem 1rem; /* Increase padding for better spacing */
+    border: 1px solid #ffd700; /* Gold border to match theme */
+    border-radius: 6px; /* Slightly rounded corners for a polished look */
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5); /* Stronger shadow for depth */
+    width: 80%; /* Ensure it spans a reasonable width */
+    max-width: 300px; /* Limit the maximum width */
+}
+
+.hidden {
+    display: none;
+}

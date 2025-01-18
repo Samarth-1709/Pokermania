@@ -50,9 +50,13 @@
                                     <td>{{ match.opponent }}</td>
                                     <td>{{ match.date }}</td>
                                     <td>{{ match.result }}</td>
-                                    <td>{{ match.chips_exchanged }}</td>
+                                    {% if bot.name == match.result %}
+                                        <td class="win">+{{ match.chips_exchanged }}</td>
+                                    {% else %}
+                                        <td class="loss">-{{ match.chips_exchanged }}</td>
+                                    {% endif %}
                                     <td>
-                                        <button class="replay-btn" data-replay-id="{{ match.game_id }}">Replay</button>
+                                        <a href="{% url 'replay' match.game_id %}" class="replay-btn">Replay</a>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -62,19 +66,5 @@
             </div>
         </div>
     </div>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const replayButtons = document.querySelectorAll(".replay-btn");
-            replayButtons.forEach(button => {
-                button.addEventListener("click", function () {
-                    const gameId = this.getAttribute("data-replay-id");
-                    if (gameId) {
-                        window.location.href = `/replay/${gameId}/`; // Adjust the URL structure as needed
-                    }
-                });
-            });
-        });
-    </script>
 
 {% endblock %}

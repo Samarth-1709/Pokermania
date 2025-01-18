@@ -1,14 +1,18 @@
 Started the round 1
 Street "preflop" started. (community card = [])
-"demo1" declared "call:100"
-"demo3" declared "call:100"
-Street "flop" started. (community card = ['S7', 'HJ', 'D6'])
-"demo1" declared "call:0"
-"demo3" declared "call:0"
-Street "turn" started. (community card = ['S7', 'HJ', 'D6', 'H6'])
-"demo1" declared "call:0"
-"demo3" declared "call:0"
-Street "river" started. (community card = ['S7', 'HJ', 'D6', 'H6', 'C5'])
-"demo1" declared "call:0"
-"demo3" declared "call:0"
-"['demo3']" won the round 1 (stack = {'demo3': 1100, 'demo1': 900})
+"A" declared "call:100"
+"ugvutv" declared "raise:150"
+"A" declared "call:150"
+Street "flop" started. (community card = ['C9', 'DQ', 'S9'])
+"A" declared "call:0"
+"ugvutv" declared "raise:100"
+"A" declared "call:100"
+Street "turn" started. (community card = ['C9', 'DQ', 'S9', 'C5'])
+"A" declared "call:0"
+"ugvutv" declared "raise:100"
+"A" declared "call:100"
+Street "river" started. (community card = ['C9', 'DQ', 'S9', 'C5', 'C8'])
+"A" declared "call:0"
+"ugvutv" declared "raise:100"
+"A" declared "call:100"
+"['ugvutv']" won the round 1 (stack = {'ugvutv': 1450, 'A': 550})
