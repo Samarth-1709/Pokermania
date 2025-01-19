@@ -15,4 +15,5 @@ urlpatterns = [
     path('deploy_bot/', views.deploy_bot, name='deploy_bot'),
     path('contact_us/', views.contact_us, name='contact_us'),
     path('documentation/', views.documentation, name='documentation'),
-]
+    path('test_run/',views.test_run,name="test_run")
+]   

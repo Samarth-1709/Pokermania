@@ -20,9 +20,10 @@ Game Table
                 <div class="player-cards">
                     <div class="card-slot" id="player1-card-1"></div>
                     <div class="card-slot" id="player1-card-2"></div>
+                    <div class="bet bet-left" id="bet-left">$100</div>
                 </div>
                 <div class="actions" id="player1-actions"></div>
-                <div class="bet bet-left" id="bet-left">$100</div>
+                
             </div>
         {% else %}
             <div class="opponent">
@@ -31,9 +32,10 @@ Game Table
                 <div class="player-cards">
                     <div class="card-slot" id="player2-card-1"></div>
                     <div class="card-slot" id="player2-card-2"></div>
+                    <div class="bet bet-left" id="bet-left">$50</div>
                 </div>
                 <div class="actions" id="player2-actions"></div>
-                <div class="bet bet-left" id="bet-left">$50</div>
+                
             </div>
         {% endif %}
 
@@ -57,26 +59,29 @@ Game Table
         {% if player == "R" %}
             <div class="opponent">
                 <h2>{{ match.bot1.name }}</h2>
-                <div class="balance" id="player1-balance">$1000</div>
+                <div class="balance" id="player1-balance">$900</div>
                 <div class="player-cards">
                     <div class="card-slot" id="player1-card-1"></div>
                     <div class="card-slot" id="player1-card-2"></div>
+                    <div class="bet bet-right" id="bet-right">$100</div>
                 </div>
                 <div class="actions" id="player1-actions"></div>
             </div>
+            
         {% else %}
             <div class="opponent">
                 <h2>{{ match.bot2.name }}</h2>
-                <div class="balance" id="player2-balance">$1000</div>
+                <div class="balance" id="player2-balance">$950</div>
                 <div class="player-cards">
                     <div class="card-slot" id="player2-card-1"></div>
                     <div class="card-slot" id="player2-card-2"></div>
+                    <div class="bet bet-right" id="bet-right">$50</div>
                 </div>
                 <div class="actions" id="player2-actions"></div>
             </div>
+            
         {% endif %}
 
-        <div class="bet bet-right" id="bet-right">$0</div>
     </div>
 </div>
 <script>
@@ -274,11 +279,11 @@ Game Table
                 if (currentStreet < streets.length - 1) {
                     currentStreet++;
                     if (currentStreet === 1) {
-                        setCardImage("community-card-1", getCardImage(communitycards[3][0]));
-                        setCardImage("community-card-2", getCardImage(communitycards[3][1]));
-                        setCardImage("community-card-3", getCardImage(communitycards[3][2]));
+                        setCardImage("community-card-1", getCardImage(communitycards[1][0]));
+                        setCardImage("community-card-2", getCardImage(communitycards[1][1]));
+                        setCardImage("community-card-3", getCardImage(communitycards[1][2]));
                     } else if (currentStreet === 2) {
-                        setCardImage("community-card-4", getCardImage(communitycards[3][3]));
+                        setCardImage("community-card-4", getCardImage(communitycards[2][3]));
                     } else if (currentStreet === 3) {
                         setCardImage("community-card-5", getCardImage(communitycards[3][4]));
                         done=true;

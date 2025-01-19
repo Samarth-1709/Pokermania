@@ -22,9 +22,11 @@ class User(AbstractUser):
 
 
 class Bot(models.Model):
+    id = models.AutoField(primary_key=True)
     user = models.ForeignKey('poker.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     file = models.FileField(upload_to='bots/')
+    path = models.CharField(max_length=100,default="")
     created_at = models.DateTimeField(auto_now_add=True)
     wins=models.IntegerField(default=0)
     total_games=models.IntegerField(default=0)
@@ -41,3 +43,12 @@ class Match(models.Model):
     played_at = models.DateTimeField(auto_now_add=True)
     replay_data = models.JSONField()
     hole_cards = models.JSONField()
+
+class TestBot(models.Model):
+    user = models.ForeignKey('poker.User', on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
+    file = models.FileField(upload_to='bots/')
+    created_at = models.DateTimeField(auto_now_add=True)
+    wins=models.IntegerField(default=0)
+    total_games=models.IntegerField(default=0)
+    chips_won = models.IntegerField(default=0)

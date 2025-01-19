@@ -16,12 +16,12 @@
     <div id="play-page" class="page">
         <div class="container">
             <div class="header">
-                <h1>Deploy Your Bot</h1>
-                <p>Upload your Python poker bot and join the competition</p>
+                <h1>Test Your Bot</h1>
+                <p>Upload your Python poker bot to test before submitting</p>
             </div>
 
             <div class="upload-form">
-                <form id="botUploadForm" method="POST" action="{% url 'upload_bot' %}" enctype="multipart/form-data">
+                <form id="botUploadForm" method="POST" action="{% url 'test_run' %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     
                     {% if message %}
@@ -45,7 +45,7 @@
                         <textarea name="description" id="description" rows="4"></textarea>
                     </div>
             
-                    <button type="submit" class="red">Deploy Bot</button>
+                    <button type="submit" class="red">Test Bot</button>
                 </form>
             </div>
             

@@ -1,17 +1,15 @@
 from django.http import JsonResponse
-from .models import Bot, Match
-from .utils import play_match
+from .models import Bot, Match, TestBot
+from .utils import play_match, load_bot, redirect_stdout_to_file
 from django.contrib import messages
 from django.contrib.auth import get_user_model,logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render,redirect
-import re
+import re,os
+from pypokerengine.api.game import setup_config
 
 User = get_user_model()
 
-
-# @api_view(['POST'])
-# @permission_classes([AllowAny])
 def register(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -25,18 +23,18 @@ def register(request):
             return redirect('/login/')
 
         # # Check if password meets strength requirements
-        # if len(password) < 8:
-        #     messages.error(request, "Password must be at least 8 characters long.")
-        #     return redirect('/login/')
-        # if not re.search(r'\d', password):
-        #     messages.error(request, "Password must contain at least one number.")
-        #     return redirect('/login/')
-        # if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-        #     messages.error(request, "Password must contain at least one special character.")
-        #     return redirect('/login/')
-        # if not re.search(r'[A-Z]', password):
-        #     messages.error(request, "Password must contain at least one uppercase letter.")
-        #     return redirect('/login/')
+        if len(password) < 8:
+            messages.error(request, "Password must be at least 8 characters long.")
+            return redirect('/login/')
+        if not re.search(r'\d', password):
+            messages.error(request, "Password must contain at least one number.")
+            return redirect('/login/')
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            messages.error(request, "Password must contain at least one special character.")
+            return redirect('/login/')
+        if not re.search(r'[A-Z]', password):
+            messages.error(request, "Password must contain at least one uppercase letter.")
+            return redirect('/login/')
         
         # Check if the username already exists
         if User.objects.filter(username=username).exists():
@@ -56,24 +54,27 @@ def register(request):
     
     return render(request, 'login.html')
 
-
-
 @login_required
 def upload_bot(request):
 
     user = request.user
-    bot_name = request.POST.get('name')
-    bot_file = request.FILES['file']
-    # if Bot.objects.filter(user=user).count() >= 3:
-    #     return render(request, 'deploy.html', {'message': "You can only upload a maximum of 3 bots."})
+    bot_name = request.POST.get('bot_name')
+    bot_file_path = request.POST.get('bot_file_path')
+    if Bot.objects.filter(user=user).count() > 5:
+        return render(request, 'deploy.html', {'message': "You can only upload a maximum of 5 bots."})
+    try:
+        with open(bot_file_path, 'r') as file:
+            bot_file = file.read()
+    except FileNotFoundError:
+        print(f"The file at {bot_file_path} was not found.")
+        
+    new_bot = Bot.objects.create(user=user, name=bot_name, file=bot_file, path=bot_file_path)
 
-    new_bot = Bot.objects.create(user=user, name=bot_name, file=bot_file)
-
-    existing_bots = Bot.objects.exclude(user=user)
+    existing_bots = Bot.objects.exclude(id=new_bot.id)
 
     for existing_bot in existing_bots:
         for match_number in range(1, 4):
-            winner, chips_exchanged, replay_data, hole_cards = play_match(new_bot.file.path, existing_bot.file.path, new_bot, existing_bot)
+            winner, chips_exchanged, replay_data, hole_cards = play_match(bot_file_path, existing_bot.path, new_bot, existing_bot)
 
             Match.objects.create(
                 bot1=new_bot,
@@ -225,3 +226,55 @@ def contact_us(request):
 
 def documentation(request):
     return render(request, 'documentation.html')
+
+@login_required
+def test_run(request):
+
+    user = request.user
+    bot_name = request.POST.get('name')
+    bot_file = request.FILES['file']
+
+    # Save the uploaded bot in the testbots directory
+    new_test_bot = TestBot.objects.create(user=user, name=bot_name, file=bot_file)
+    
+    test_bots=[os.path.join('bots','always_call_bot.py'),os.path.join('bots','aggressive_bot.py'),os.path.join('bots','cautious_bot.py'),os.path.join('bots','probability_based_bot.py'),os.path.join('bots','random_bot.py')]
+    results=[]
+
+    for opponent_bot in test_bots:
+        config=setup_config(max_round=1, initial_stack=1000, small_blind_amount=50)
+        bot1,chk1=load_bot(new_test_bot.file.path)
+        bot2,chk2=load_bot(opponent_bot)
+        
+        if(chk1 is False):
+            return JsonResponse({'error':bot1},status=500)
+        
+        config.register_player(name=new_test_bot.name, algorithm=bot1)
+        config.register_player(name="opponent_bot", algorithm=bot2)
+        output_file = "poker_output.txt"
+        game,chk=redirect_stdout_to_file(config,output_file)
+
+        if chk==0:
+            return JsonResponse({'error':game},status=500)
+        
+        move_details=[]
+
+        with open(output_file,"r") as file:
+            history=file.readlines()
+
+        for line in history:
+            move_details.append(line.strip())
+        
+        chips_exchanged=abs(game["players"][0]["stack"]-game["players"][1]["stack"])
+        result="win" if game["players"][0]["stack"]>game["players"][1]["stack"] else "loss"
+        result_data={
+            'game_result':result,
+            'chips_exchanged':chips_exchanged,
+            'move_details':move_details
+        }
+        results.append(result_data)
+
+        if os.path.exists(output_file):
+            os.remove(output_file)
+
+    bot_details=request.session.get('bot_details',{})
+    return render(request,'test_run_Response.html',{'results': results,'testbot':new_test_bot})

@@ -7,10 +7,13 @@ import io
 from typing import final
 
 def load_bot(filepath):
-    spec = importlib.util.spec_from_file_location("Bot", filepath)
-    bot = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(bot)
-    return bot.Bot()
+    try:
+        spec = importlib.util.spec_from_file_location("Bot", filepath)
+        bot = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(bot)
+    except Exception as e:
+        return str(e),False
+    return bot.Bot(),True
 
 def parse_poker_output_to_json(input_text):
     # Initialize the structure for the JSON data
@@ -64,9 +67,14 @@ def redirect_stdout_to_file(config, output_file):
         try:
             sys.stdout = file
             result=start_poker(config, verbose=1)
+        except Exception as e:
+            sys.stdout = original_stdout  # Restore stdout immediately
+            with open(output_file, "a") as err_file:
+                err_file.write(f"\nError: {str(e)}")
+            return str(e), False  # Return error message and failure status
         finally:
             sys.stdout = original_stdout
-            return result
+            return result, True
 
 def read_output_file_and_parse(input_file):
     with open(input_file, "r") as file:
@@ -75,24 +83,17 @@ def read_output_file_and_parse(input_file):
     poker_json = parse_poker_output_to_json(content)
     return poker_json
 
-def load_bot(filepath):
-    spec = importlib.util.spec_from_file_location("Bot", filepath)
-    bot = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(bot)
-    return bot.Bot()
-
-
 def play_match(bot1_path, bot2_path, bot1, bot2):
     
-    bot1_instance = load_bot(bot1_path)
-    bot2_instance = load_bot(bot2_path)
+    bot1_instance,chk1= load_bot(bot1_path)
+    bot2_instance,chk2= load_bot(bot2_path)
 
     config = setup_config(max_round=1, initial_stack=1000, small_blind_amount=50)
     config.register_player(name=bot1.name, algorithm=bot1_instance)
     config.register_player(name=bot2.name, algorithm=bot2_instance)
 
     output_file = "poker_output.txt"
-    result = redirect_stdout_to_file(config,output_file)
+    result,sucess= redirect_stdout_to_file(config,output_file)
     replay_data = read_output_file_and_parse(output_file)
     
     bot1_stack = result["players"][0]["stack"]
