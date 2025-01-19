@@ -31,6 +31,7 @@ class Bot(models.Model):
     wins=models.IntegerField(default=0)
     total_games=models.IntegerField(default=0)
     chips_won = models.IntegerField(default=0)
+    score = models.IntegerField(default=0)
 
 
 class Match(models.Model):

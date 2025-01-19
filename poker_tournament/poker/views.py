@@ -91,10 +91,9 @@ def upload_bot(request):
 
 
 def leaderboard(request):
-    bots = Bot.objects.all().order_by('-wins')
+    bots = Bot.objects.all().order_by('-score')
     data = []
     for idx, bot in enumerate(bots, start=1):
-        win_rate = (bot.wins / bot.total_games * 100) if bot.total_games else 0
         earnings = f"${bot.chips_won:,.0f}"
         
         data.append({
@@ -102,11 +101,12 @@ def leaderboard(request):
             'botName': bot.name,
             'owner': bot.user.username,
             'wins': bot.wins,
-            'winRate': f"{win_rate:.1f}%",
-            'earnings': earnings
+            'earnings': earnings,
+            'score' : bot.score
         })
-    
+
     return render(request, 'leaderboard.html', {'data': data})
+
 
 
 def home(request):
@@ -237,11 +237,14 @@ def test_run(request):
     # Save the uploaded bot in the testbots directory
     new_test_bot = TestBot.objects.create(user=user, name=bot_name, file=bot_file)
     
+    test_bots_names=["Always_call_bot","Aggressive_bot","Cautious_bot","Probability_based_bot","Random_bot"]
     test_bots=[os.path.join('bots','always_call_bot.py'),os.path.join('bots','aggressive_bot.py'),os.path.join('bots','cautious_bot.py'),os.path.join('bots','probability_based_bot.py'),os.path.join('bots','random_bot.py')]
     results=[]
 
+    i=0
     for opponent_bot in test_bots:
-        config=setup_config(max_round=1, initial_stack=1000, small_blind_amount=50)
+        opponent_bot_name=test_bots_names[i]
+        config=setup_config(max_round=1, initial_stack=10000, small_blind_amount=250)
         bot1,chk1=load_bot(new_test_bot.file.path)
         bot2,chk2=load_bot(opponent_bot)
         
@@ -267,9 +270,10 @@ def test_run(request):
         chips_exchanged=abs(game["players"][0]["stack"]-game["players"][1]["stack"])
         result="win" if game["players"][0]["stack"]>game["players"][1]["stack"] else "loss"
         result_data={
-            'game_result':result,
-            'chips_exchanged':chips_exchanged,
-            'move_details':move_details
+            'opponent_name': opponent_bot_name,
+            'game_result': result,
+            'chips_exchanged': chips_exchanged,
+            'move_details': move_details
         }
         results.append(result_data)
 

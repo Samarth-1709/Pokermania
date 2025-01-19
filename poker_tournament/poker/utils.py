@@ -88,7 +88,7 @@ def play_match(bot1_path, bot2_path, bot1, bot2):
     bot1_instance,chk1= load_bot(bot1_path)
     bot2_instance,chk2= load_bot(bot2_path)
 
-    config = setup_config(max_round=1, initial_stack=1000, small_blind_amount=50)
+    config = setup_config(max_round=1, initial_stack=10000, small_blind_amount=250)
     config.register_player(name=bot1.name, algorithm=bot1_instance)
     config.register_player(name=bot2.name, algorithm=bot2_instance)
 
@@ -105,11 +105,15 @@ def play_match(bot1_path, bot2_path, bot1, bot2):
         bot2.chips_won -= chips_exchanged
         bot1.wins += 1
         winner = bot1.name
+        bot1.score += 20+80*chips_exchanged/10000
+        bot2.score -= 80*chips_exchanged/10000
     else:
         bot1.chips_won -= chips_exchanged
         bot2.chips_won += chips_exchanged
         bot2.wins += 1
         winner = bot2.name
+        bot2.score += 20+80*chips_exchanged/10000
+        bot1.score -= 80*chips_exchanged/10000
     
     bot1.total_games += 1
     bot2.total_games += 1

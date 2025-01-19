@@ -24,6 +24,7 @@
                         {% for result in results %}
                             <li>
                                 <strong>Game {{forloop.counter}} Result:</strong> {{ result.game_result }}<br>
+                                <strong>Test Bot:</strong> {{ result.opponent_name }}<br>
                                 <strong>Chips Exchanged:</strong> {{ result.chips_exchanged }}<br>
                                 <strong>Move Details:</strong>
                                 <ul>

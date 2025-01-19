@@ -1,10 +1,5 @@
 Started the round 1
 Street "preflop" started. (community card = [])
-"bvcngcgvgn" declared "call:100"
-"bhv jb vjb " declared "call:100"
-Street "flop" started. (community card = ['HT', 'H6', 'SQ'])
-"bvcngcgvgn" declared "call:0"
-"bhv jb vjb " declared "call:0"
-Street "turn" started. (community card = ['HT', 'H6', 'SQ', 'DT'])
-"bvcngcgvgn" declared "fold:0"
-"['bhv jb vjb ']" won the round 1 (stack = {'bhv jb vjb ': 1100, 'bvcngcgvgn': 900})
+"sdv" declared "raise:750"
+"c" declared "fold:0"
+"['sdv']" won the round 1 (stack = {'c': 9500, 'sdv': 10500})
