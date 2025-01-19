@@ -20,14 +20,16 @@
             </div>
 
             <div class="leaderboard-container">
-                <div class="bot-filters">
-                    <select id="botFilter">
-                        <option value="all">All Bots</option>
-                        {% for bot in bots %}
-                            <option value="{{ bot.name }}">{{ bot.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                <form method="get" action="{% url 'my_bots' %}">
+                    <div class="bot-filters">
+                        <select name="bot" id="botFilter" onchange="this.form.submit()">
+                            <option value="all" {% if selected_bot == 'all' %}selected{% endif %}>All Bots</option>
+                            {% for bot in bots %}
+                                <option value="{{ bot.name }}" {% if selected_bot == bot.name %}selected{% endif %}>{{ bot.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
 
                 <table class="leaderboard-table">
                     <thead>
@@ -46,11 +48,11 @@
                             {% for match in matches %}
                                 <tr>
                                     <td>{{ forloop.parentloop.counter }}-{{ forloop.counter }}</td>
-                                    <td>{{ bot.name }}</td>
+                                    <td>{{ bot }}</td>
                                     <td>{{ match.opponent }}</td>
                                     <td>{{ match.date }}</td>
                                     <td>{{ match.result }}</td>
-                                    {% if bot.name == match.result %}
+                                    {% if bot == match.result %}
                                         <td class="win">+{{ match.chips_exchanged }}</td>
                                     {% else %}
                                         <td class="loss">-{{ match.chips_exchanged }}</td>

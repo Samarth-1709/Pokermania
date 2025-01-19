@@ -1,8 +1,5 @@
 {% load static %}
 
-{% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/navstyles.css' %}">
-{% endblock %}
     <nav class="navbar">
         <div class="container">
             <a href="{% url 'home' %}" class="logo">
@@ -55,6 +52,20 @@
                         </svg>
                         MyBots
                     </a>
+                    <a href="{% url 'documentation' %}" class="nav-link">
+                        <svg viewBox="0 0 24 24" class="icon">
+                            <path
+                                d="M12 2C9.79 2 8 3.79 8 6v12c0 2.21 1.79 4 4 4s4-1.79 4-4V6c0-2.21-1.79-4-4-4zm-1 2h2v4h-2V4zm0 6h2v4h-2v-4z" />
+                        </svg>
+                        How to Play
+                    </a>
+                    <a href="{% url 'contact_us' %}" class="nav-link">
+                        <svg viewBox="0 0 24 24" class="icon">
+                            <path
+                                d="M21 8V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v1l9 5 9-5zm-9 7-9-5v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6l-9 5z" />
+                        </svg>
+                        Contact
+                    </a>
                     <a href="{% url 'logout' %}" class="nav-link">
                         <svg viewBox="0 0 24 24" class="icon">
                             <path
@@ -63,6 +74,20 @@
                         Logout
                     </a>
                 {% else %}
+                    <a href="{% url 'documentation' %}" class="nav-link">
+                        <svg viewBox="0 0 24 24" class="icon">
+                            <path
+                                d="M12 2C9.79 2 8 3.79 8 6v12c0 2.21 1.79 4 4 4s4-1.79 4-4V6c0-2.21-1.79-4-4-4zm-1 2h2v4h-2V4zm0 6h2v4h-2v-4z" />
+                        </svg>
+                        How to Play
+                    </a>
+                    <a href="{% url 'contact_us' %}" class="nav-link">
+                        <svg viewBox="0 0 24 24" class="icon">
+                            <path
+                                d="M21 8V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v1l9 5 9-5zm-9 7-9-5v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6l-9 5z" />
+                        </svg>
+                        Contact
+                    </a>
                     <a href="{% url 'login' %}" class="nav-link">
                         <svg viewBox="0 0 24 24" class="icon">
                             <path

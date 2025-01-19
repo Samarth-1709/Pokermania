@@ -1,18 +1,24 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}
 Leaderboard - PokerBots Arena
 {% endblock %}
 
-{% load static %}
+{% block extra_css %}
+    <style>
+        body {
+            background-image: url('{% static "images/pokerbg1.jpg" %}');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+    </style>
+{% endblock %}
+
 
 {% block content %}
-    <div class="video-container">
-        <video autoplay muted loop playsinline id="bg-video">
-            <source src="https://img.pikbest.com/09/42/51/38DpIkbEsTq9v.mp4" type="video/mp4">
-            Your browser does not support HTML5 video.
-        </video>
-    </div>
 
     <div id="leaderboard-page" class="page">
         <div class="container">

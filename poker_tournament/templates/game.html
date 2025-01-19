@@ -15,27 +15,29 @@ Game Table
     <div class="game-table">
         {% if player == "L" %}
             <div class="opponent">
-                <h2>{{ match.bot1.name }}</h2>
-                <div class="balance" id="player1-balance">$1000</div>
+                <h2>{{ match.bot1.name }}(You)</h2>
+                <div class="balance" id="player1-balance">$900</div>
                 <div class="player-cards">
                     <div class="card-slot" id="player1-card-1"></div>
                     <div class="card-slot" id="player1-card-2"></div>
                 </div>
                 <div class="actions" id="player1-actions"></div>
+                <div class="bet bet-left" id="bet-left">$100</div>
             </div>
         {% else %}
             <div class="opponent">
-                <h2>{{ match.bot2.name }}</h2>
-                <div class="balance" id="player2-balance">$1000</div>
+                <h2>{{ match.bot2.name }}(You)</h2>
+                <div class="balance" id="player2-balance">$950</div>
                 <div class="player-cards">
                     <div class="card-slot" id="player2-card-1"></div>
                     <div class="card-slot" id="player2-card-2"></div>
                 </div>
                 <div class="actions" id="player2-actions"></div>
+                <div class="bet bet-left" id="bet-left">$50</div>
             </div>
         {% endif %}
 
-        <div class="bet bet-left" id="bet-left">$0</div>
+        
 
         <div class="center-area">
             <div class="card-pack"></div>
@@ -140,6 +142,7 @@ Game Table
     const holecards = {{ match.hole_cards|safe }};
     const communitycards = {{ match.replay_data.communitycards|safe }};
     const actions = {{ match.replay_data.actions|safe }};
+    const player = "{{ player|safe }}";
 
     function setCardImage(cardSlotId, cardImageSrc) {
         const cardSlot = document.getElementById(cardSlotId);
@@ -165,10 +168,18 @@ Game Table
     }
 
     function setPlayerCards() {
-        setCardImage("player1-card-1", getCardImage(holecards[0][0]));
-        setCardImage("player1-card-2", getCardImage(holecards[0][1]));
-        setCardImage("player2-card-1", getCardImage(holecards[1][0]));
-        setCardImage("player2-card-2", getCardImage(holecards[1][1]));
+        if(player === 'L'){
+            setCardImage("player1-card-1", getCardImage(holecards[0][0]));
+            setCardImage("player1-card-2", getCardImage(holecards[0][1]));
+            setCardImage("player2-card-1", getCardImage());
+            setCardImage("player2-card-2", getCardImage());
+        }
+        else{
+            setCardImage("player1-card-1", getCardImage());
+            setCardImage("player1-card-2", getCardImage());
+            setCardImage("player2-card-1", getCardImage(holecards[1][0]));
+            setCardImage("player2-card-2", getCardImage(holecards[1][1]));
+        }
     }
     setPlayerCards();
 
@@ -209,28 +220,40 @@ Game Table
             const playerName = streetActions.name[actionIndex];
             const playerAction = streetActions.action[actionIndex];
             const actionAmount = streetActions.amount[actionIndex];
+            const formattedAction = playerAction.charAt(0).toUpperCase() + playerAction.slice(1);
 
-            if (playerName === player1Name) {
+            if(playerAction === "fold"){
+                isfold=true;
+                done=true;
+                if(playerName === player1Name){
+                    player1ActionsElement.textContent = `${formattedAction}`;
+                    player1ActionsElement.classList.remove("hidden");
+                    player2ActionsElement.classList.add("hidden");
+                }
+                else{
+                    player2ActionsElement.textContent = `${formattedAction}`;
+                    player2ActionsElement.classList.remove("hidden");
+                    player1ActionsElement.classList.add("hidden");
+                }
+            }
+
+            if (playerName === player1Name && !isfold) {
                 player1Balance -= actionAmount-player1Bet;
                 player1Bet = actionAmount;
                 betLeftElement.textContent = `$${player1Bet}`;
-                player1ActionsElement.textContent = `${playerAction}`;
+                player1ActionsElement.textContent = `${formattedAction}`;
                 player1BalanceElement.textContent = `$${player1Balance}`;
                 player1ActionsElement.classList.remove("hidden");
                 player2ActionsElement.classList.add("hidden");
 
-            } else if (playerName === player2Name) {
+            } else if (playerName === player2Name && !isfold) {
                 player2Balance -= actionAmount-player2Bet;
                 player2Bet = actionAmount;
                 betRightElement.textContent = `$${player2Bet}`;
-                player2ActionsElement.textContent = `${playerAction}`;
+                player2ActionsElement.textContent = `${formattedAction}`;
                 player2BalanceElement.textContent = `$${player2Balance}`;
                 player2ActionsElement.classList.remove("hidden");
                 player1ActionsElement.classList.add("hidden");
-            }
-            if(playerAction === "fold"){
-                isfold=true;
-                done=true;
             }
             actionIndex++;
         } 
@@ -264,6 +287,10 @@ Game Table
             }
         }
         else{
+            if(isfold){
+                dimPage();
+                showResults(holecards, communitycards[currentStreet]);
+            }
             dimPage();
             showResults(holecards, communitycards[3]);
         }
@@ -328,7 +355,7 @@ Game Table
     <br><br/>
 `;
 
-if (!isfold) {
+if (!isfold&&currentStreet!=0) {
     resultsHTML += `
         <h3>Community Cards</h3>
         <div>${communityCardsHTML}</div>
@@ -355,9 +382,14 @@ resultsHTML += `
                 <th style="padding: 5px;">Chips</th>
             </tr>
         </thead>
+
+`;
+
+if (player === 'L') {
+    resultsHTML += `
         <tbody>
             <tr>
-                <td style="padding: 5px;">${player1Name}</td>
+                <td style="padding: 5px;">${player1Name}(You)</td>
                 <td style="padding: 0px;">${player1CardsHTML}</td>
                 <td style="padding: 5px;">${getChipsHTML(player1Name)}</td>
             </tr>
@@ -367,6 +399,26 @@ resultsHTML += `
                 <td style="padding: 5px;">${getChipsHTML(player2Name)}</td>
             </tr>
         </tbody>
+    `;
+}
+else{
+    resultsHTML += `
+        <tbody>
+            <tr>
+                <td style="padding: 5px;">${player2Name}(You)</td>
+                <td style="padding: 5px;">${player2CardsHTML}</td>
+                <td style="padding: 5px;">${getChipsHTML(player2Name)}</td>
+            </tr>
+            <tr>
+                <td style="padding: 5px;">${player1Name}</td>
+                <td style="padding: 0px;">${player1CardsHTML}</td>
+                <td style="padding: 5px;">${getChipsHTML(player1Name)}</td>
+            </tr>
+        </tbody>
+    `;
+}
+
+resultsHTML+=`
     </table>
     <br>
     <button onclick="closeResults()" style="background-color: #ffcc00; padding: 10px 20px; color: #1f2937; border: none; font-size: 18px; cursor: pointer;">
@@ -381,3 +433,16 @@ resultsDiv.innerHTML = resultsHTML;
 </script>
 
 {% endblock %}
+
+<tbody>
+    <tr>
+        <td style="padding: 5px;">${player1Name}(You)</td>
+        <td style="padding: 0px;">${player1CardsHTML}</td>
+        <td style="padding: 5px;">${getChipsHTML(player1Name)}</td>
+    </tr>
+    <tr>
+        <td style="padding: 5px;">${player2Name}</td>
+        <td style="padding: 5px;">${player2CardsHTML}</td>
+        <td style="padding: 5px;">${getChipsHTML(player2Name)}</td>
+    </tr>
+</tbody>

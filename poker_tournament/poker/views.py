@@ -136,32 +136,65 @@ def login_view(request):
 @login_required
 def my_bots(request):
     bots = Bot.objects.filter(user=request.user)
+    selected_bot = request.GET.get('bot', 'all')
+    
     bot_matches = {}
-    for bot in bots:
-        matches_as_bot1 = Match.objects.filter(bot1=bot)
-        matches_as_bot2 = Match.objects.filter(bot2=bot)
+
+    if selected_bot != 'all':
+        # Filter matches for the selected bot only
+        selected_bot_instance = Bot.objects.get(name=selected_bot, user=request.user)
+        matches_as_bot1 = Match.objects.filter(bot1=selected_bot_instance)
+        matches_as_bot2 = Match.objects.filter(bot2=selected_bot_instance)
         matches = []
         for match in matches_as_bot1:
             matches.append({
+                'bot_name': selected_bot_instance.name,
                 'opponent': match.bot2.name,
                 'result': match.winner,
                 'date': match.played_at,
                 'chips_exchanged': match.chips_exchanged,
                 'game_id': match.game_id,
             })
-        
         for match in matches_as_bot2:
             matches.append({
+                'bot_name': selected_bot_instance.name,
                 'opponent': match.bot1.name,
                 'result': match.winner,
                 'date': match.played_at,
                 'chips_exchanged': match.chips_exchanged,
-                'game_id': match.game_id
+                'game_id': match.game_id,
             })
+        bot_matches[selected_bot_instance.name] = matches
+    else:
+        for bot in bots:
+            matches_as_bot1 = Match.objects.filter(bot1=bot)
+            matches_as_bot2 = Match.objects.filter(bot2=bot)
+            matches = []
+            for match in matches_as_bot1:
+                matches.append({
+                    'bot_name': bot.name,
+                    'opponent': match.bot2.name,
+                    'result': match.winner,
+                    'date': match.played_at,
+                    'chips_exchanged': match.chips_exchanged,
+                    'game_id': match.game_id,
+                })
+            for match in matches_as_bot2:
+                matches.append({
+                    'bot_name': bot.name,
+                    'opponent': match.bot1.name,
+                    'result': match.winner,
+                    'date': match.played_at,
+                    'chips_exchanged': match.chips_exchanged,
+                    'game_id': match.game_id,
+                })
+            bot_matches[bot.name] = matches
 
-        bot_matches[bot] = matches
-    return render(request, 'bots.html', {'bots': bots, 'bot_matches': bot_matches})
-
+    return render(request, 'bots.html', {
+        'bots': bots,
+        'bot_matches': bot_matches,
+        'selected_bot': selected_bot,
+    })
 
 
 def logout_view(request):
@@ -187,3 +220,8 @@ def replay(request, game_id):
         "player":player
     })
     
+def contact_us(request):
+    return render(request, 'contact.html')
+
+def documentation(request):
+    return render(request, 'documentation.html')

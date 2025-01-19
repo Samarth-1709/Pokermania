@@ -1,6 +1,6 @@
 from pypokerengine.players import BasePokerPlayer
 from typing import final
-class Base(BasePokerPlayer):
+class CountingBot(BasePokerPlayer):
     
     def __init__(self):
         self.hole_cards=[]
