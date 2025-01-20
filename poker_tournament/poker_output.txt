@@ -1,5 +1,7 @@
 Started the round 1
 Street "preflop" started. (community card = [])
-"sdv" declared "raise:750"
-"c" declared "fold:0"
-"['sdv']" won the round 1 (stack = {'c': 9500, 'sdv': 10500})
+"jck nm vdcm" declared "raise:750"
+"bhv jb vjb" declared "raise:1000"
+"jck nm vdcm" declared "raise:1250"
+"bhv jb vjb" declared "fold:0"
+"['jck nm vdcm']" won the round 1 (stack = {'bhv jb vjb': 9000, 'jck nm vdcm': 11000})
