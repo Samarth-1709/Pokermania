@@ -253,7 +253,7 @@ def test_run(request):
             return JsonResponse({'error':bot1},status=500)
         
         config.register_player(name=new_test_bot.name, algorithm=bot1)
-        config.register_player(name="opponent_bot", algorithm=bot2)
+        config.register_player(name=opponent_bot_name, algorithm=bot2)
         output_file = "poker_output.txt"
         game,chk=redirect_stdout_to_file(config,output_file)
 

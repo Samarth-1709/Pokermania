@@ -11,9 +11,12 @@ def load_bot(filepath):
         spec = importlib.util.spec_from_file_location("Bot", filepath)
         bot = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(bot)
+        if hasattr(bot, 'Bot'):
+            return bot.Bot(), True
+        else:
+            return "The 'Bot' class is not found in the module.", False
     except Exception as e:
         return str(e),False
-    return bot.Bot(),True
 
 def parse_poker_output_to_json(input_text):
     # Initialize the structure for the JSON data
