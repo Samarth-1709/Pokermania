@@ -244,6 +244,7 @@ def test_run(request):
     i=0
     for opponent_bot in test_bots:
         opponent_bot_name=test_bots_names[i]
+        i+=1
         config=setup_config(max_round=1, initial_stack=10000, small_blind_amount=250)
         bot1,chk1=load_bot(new_test_bot.file.path)
         bot2,chk2=load_bot(opponent_bot)
